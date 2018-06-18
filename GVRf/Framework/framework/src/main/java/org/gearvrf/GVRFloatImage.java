@@ -63,12 +63,12 @@ public class GVRFloatImage extends GVRImage
             throws IllegalArgumentException
     {
         super(gvrContext, NativeBitmapImage.constructor(ImageType.FLOAT_BITMAP.Value, GL_RG));
-        NativeFloatTexture.update(getNative(), width, height, data);
+        NativeFloatTexture.update(getNative(), width, height, GL_RG, data);
     }
 
-    public GVRFloatImage(GVRContext gvrContext)
+    public GVRFloatImage(GVRContext gvrContext, int pixelFormat)
     {
-        super(gvrContext, NativeBitmapImage.constructor(ImageType.FLOAT_BITMAP.Value, GL_RG));
+        super(gvrContext, NativeBitmapImage.constructor(ImageType.FLOAT_BITMAP.Value, pixelFormat));
     }
 
     /**
@@ -79,8 +79,7 @@ public class GVRFloatImage extends GVRImage
      * and some GL hardware handshaking. Reusing the texture reduces this
      * overhead (primarily by delaying garbage collection). Do be aware that
      * updating a texture will affect any and all {@linkplain GVRMaterial
-     * materials} (and/or post effects that use the
-     * texture!
+     * materials} (and/or post effects that use the texture!
      *
      * @param width
      *            Texture width, in pixels
@@ -105,10 +104,10 @@ public class GVRFloatImage extends GVRImage
         {
             throw new IllegalArgumentException();
         }
-        return NativeFloatTexture.update(getNative(), width, height, data);
+        return NativeFloatTexture.update(getNative(), width, height, 0, data);
     }
 }
 
 class NativeFloatTexture {
-    static native boolean update(long pointer, int width, int height, float[] data);
+    static native boolean update(long pointer, int width, int height, int pixelFormat, float[] data);
 }

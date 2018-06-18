@@ -27,7 +27,7 @@ namespace gvr {
     class GLFloatImage : public GLImage, public FloatImage
     {
     public:
-        GLFloatImage() : FloatImage(), GLImage(GL_TEXTURE_2D)
+        GLFloatImage(int pixelFormat = GL_RG) : FloatImage(pixelFormat), GLImage(GL_TEXTURE_2D)
         { }
         virtual ~GLFloatImage() {}
         virtual int getId() { return mId; }
@@ -58,7 +58,7 @@ namespace gvr {
             jfloatArray array = static_cast<jfloatArray>(env->NewLocalRef(mData));
             float* pixels = env->GetFloatArrayElements(array, 0);
             glBindTexture(mType, texid);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, mWidth, mHeight, 0, GL_RG, GL_FLOAT, pixels);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RG32F, mWidth, mHeight, 0, mFormat, GL_FLOAT, pixels);
             glGenerateMipmap(mType);
             env->ReleaseFloatArrayElements(array, pixels, 0);
             env->DeleteLocalRef(array);
