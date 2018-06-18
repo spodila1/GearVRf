@@ -3,5 +3,4 @@
 	{
 	    vertex.local_position.xyz += u_blendweights[i] * texelFetch(blendshapeTexture, ivec2(i, gl_VertexID), 0).rgb;
 	}
-
 #endif

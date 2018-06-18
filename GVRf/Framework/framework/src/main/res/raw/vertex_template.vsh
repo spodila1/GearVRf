@@ -46,7 +46,6 @@ layout(location = 0) out vec3 view_direction;
 layout(location = 1) out vec3 viewspace_position;
 layout(location = 2) out vec3 viewspace_normal;
 
-
 layout(location = 10) out vec2 diffuse_coord;
 layout(location = 11) out vec2 ambient_coord;
 layout(location = 12) out vec2 specular_coord;
@@ -78,6 +77,7 @@ void main() {
 	Vertex vertex;
 
 	vertex.local_position = vec4(a_position.xyz, 1.0);
+<<<<<<< 6206cb0a2614b0bd31f6cdbb1df1e57c7623bafe
 #ifdef HAS_a_normal
     vertex.local_normal = vec4(normalize(a_normal), 0.0);
 #endif
@@ -87,6 +87,13 @@ void main() {
 
 @VertexShader
 
+=======
+	vertex.local_normal = vec4(0.0, 0.0, 1.0, 0.0);
+	@VertexShader
+#ifdef HAS_VertexMorphShader
+    @VertexMorphShader
+#endif
+>>>>>>> first cut at morphing with blend shapes
 #ifdef HAS_VertexSkinShader
 @VertexSkinShader
 #endif
