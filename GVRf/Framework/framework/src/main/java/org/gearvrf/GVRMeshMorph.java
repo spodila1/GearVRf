@@ -30,7 +30,7 @@ public class GVRMeshMorph extends GVRBehavior
     protected float[] mBlendShapeDiffs;
     protected float[] mBaseBlendShape;
 
-    GVRMeshMorph(GVRContext ctx, int numBlendShapes, boolean morphNormals)
+    public GVRMeshMorph(GVRContext ctx, int numBlendShapes, boolean morphNormals)
     {
         super(ctx, 0);
         mType = getComponentType();
@@ -65,7 +65,7 @@ public class GVRMeshMorph extends GVRBehavior
             throw new IllegalStateException("Cannot attach a morph to a scene object without a base mesh");
         }
         GVRShaderData mtl = getMaterial();
-        if ((mtl == null) || !mtl.getTextureNames().contains("blendshapeTexture"))
+        if ((mtl == null) || !mtl.getTextureDescriptor().contains("blendshapeTexture"))
         {
             throw new IllegalStateException("Scene object shader does not support morphing");
         }
@@ -146,6 +146,21 @@ public class GVRMeshMorph extends GVRBehavior
         {
             mtl.setFloatArray("u_blendweights", mWeights);
         }
+    }
+
+    public void setBlendShape(int index, GVRSceneObject obj)
+    {
+        GVRRenderData rdata = obj.getRenderData();
+        GVRMesh mesh;
+        GVRVertexBuffer vbuf;
+
+        if ((rdata == null) ||
+            ((mesh = rdata.getMesh()) == null) ||
+            ((vbuf = mesh.getVertexBuffer()) == null))
+        {
+            throw new IllegalArgumentException("Scene object must have a mesh to be used as a blend shape");
+        }
+        setBlendShape(index, vbuf);
     }
 
     public void setBlendShape(int index, GVRVertexBuffer vbuf)
