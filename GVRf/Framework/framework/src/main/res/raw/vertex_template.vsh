@@ -72,17 +72,23 @@ void main() {
 	Vertex vertex;
 
 	vertex.local_position = vec4(a_position.xyz, 1.0);
-	vertex.local_normal = vec4(0.0, 0.0, 1.0, 0.0);
-	@VertexShader
+#ifdef HAS_a_normal
+    vertex.local_normal = vec4(normalize(a_normal), 0.0);
+#endif
 #ifdef HAS_VertexMorphShader
-    @VertexMorphShader
+@VertexMorphShader
 #endif
+
+@VertexShader
+
 #ifdef HAS_VertexSkinShader
-	@VertexSkinShader
+@VertexSkinShader
 #endif
+
 #ifdef HAS_VertexNormalShader
-	@VertexNormalShader
+@VertexNormalShader
 #endif
+
 #ifdef HAS_LIGHTSOURCES
 	LightVertex(vertex);
 #endif
@@ -95,7 +101,7 @@ void main() {
 #ifdef HAS_MULTIVIEW
     bool render_mask = (u_render_mask & (gl_ViewID_OVR + uint(1))) > uint(0) ? true : false;
     mat4 mvp = u_mvp_[gl_ViewID_OVR];
-    if(!render_mask)
+    if (!render_mask)
         mvp = mat4(0.0);  //  if render_mask is not set for particular eye, dont render that object
     gl_Position = mvp  * vertex.local_position;
 #else

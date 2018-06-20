@@ -15,6 +15,9 @@
 
 package org.gearvrf;
 
+import org.gearvrf.utility.Log;
+
+import static android.opengl.GLES20.GL_RGB;
 import static android.opengl.GLES30.GL_RGB32F;
 
 public class GVRMeshMorph extends GVRBehavior
@@ -91,7 +94,6 @@ public class GVRMeshMorph extends GVRBehavior
         mWeights = new float[mNumBlendShapes];
         mBlendShapeDiffs = new float[mTexWidth * mNumVerts];
         float[] vec3data = baseShape.getFloatArray("a_position");
-        mNumVerts = baseShape.getVertexCount();
         for (int i = 0; i < mNumVerts; ++i)
         {
             int t = i * mFloatsPerVertex;
@@ -114,26 +116,22 @@ public class GVRMeshMorph extends GVRBehavior
 
     protected void copyBlendShape(int shapeofs, int baseofs, float[] vec3data)
     {
-        int numVerts = vec3data.length / 3;
         if (mBaseBlendShape == null)
         {
             throw new IllegalStateException("Must be attached to a scene object to set blend shapes");
         }
-        if (mNumVerts != numVerts)
+        if (mNumVerts != vec3data.length / 3)
         {
             throw new IllegalArgumentException("All blend shapes must have the same number of vertices");
         }
 
-        for (int i = 0; i < numVerts; ++i)
+        for (int i = 0; i < mNumVerts; ++i)
         {
             int b = i * mFloatsPerVertex + baseofs;
-            int s = (numVerts - i - 1) * mTexWidth + shapeofs;
-//            mBlendShapeDiffs[s] = (vec3data[i * 3] - mBaseBlendShape[b]);
-//            mBlendShapeDiffs[s + 1] = (vec3data[i * 3 + 1] - mBaseBlendShape[b + 1]);
-//            mBlendShapeDiffs[s + 2] = (vec3data[i * 3 + 2] - mBaseBlendShape[b + 2]);
-            mBlendShapeDiffs[s] = mBaseBlendShape[b];
-            mBlendShapeDiffs[s + 1] = mBaseBlendShape[b + 1];
-            mBlendShapeDiffs[s + 2] = mBaseBlendShape[b + 2];
+            int s = (mNumVerts - i - 1) * mTexWidth + shapeofs;
+            mBlendShapeDiffs[s] = (vec3data[i * 3] - mBaseBlendShape[b]);
+            mBlendShapeDiffs[s + 1] = (vec3data[i * 3 + 1] - mBaseBlendShape[b + 1]);
+            mBlendShapeDiffs[s + 2] = (vec3data[i * 3 + 2] - mBaseBlendShape[b + 2]);
         }
     }
 
@@ -211,6 +209,7 @@ public class GVRMeshMorph extends GVRBehavior
         {
             return false;
         }
+//        Log.d("MORPH", dumpDiffs());
         if (mtl.hasTexture("blendshapeTexture"))
         {
             blendshapeTex = mtl.getTexture("blendshapeTexture");
@@ -221,13 +220,27 @@ public class GVRMeshMorph extends GVRBehavior
             GVRTextureParameters texparams = new GVRTextureParameters(getGVRContext());
             texparams.setMinFilterType(GVRTextureParameters.TextureFilterType.GL_NEAREST);
             texparams.setMagFilterType(GVRTextureParameters.TextureFilterType.GL_NEAREST);
-            blendshapeImage = new GVRFloatImage(getGVRContext(), GL_RGB32F);
+            blendshapeImage = new GVRFloatImage(getGVRContext(), GL_RGB);
             blendshapeTex = new GVRTexture(getGVRContext(), texparams);
             blendshapeTex.setImage(blendshapeImage);
             mtl.setTexture("blendshapeTexture", blendshapeTex);
         }
-        int width = mNumBlendShapes * mFloatsPerVertex / 3;
-        blendshapeImage.update(width, mNumVerts, mBlendShapeDiffs);
+        blendshapeImage.update(mTexWidth / 3, mNumVerts, mBlendShapeDiffs);
         return true;
+    }
+
+    private String dumpDiffs()
+    {
+        String s = "";
+        for (int i = 0; i < mNumVerts; ++i)
+        {
+            for (int j = 0; j < mTexWidth; ++j)
+            {
+                Float f = mBlendShapeDiffs[i * mFloatsPerVertex + j];
+                s += " " + f.toString();
+            }
+            s += "\n";
+        }
+        return s;
     }
 }
