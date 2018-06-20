@@ -80,7 +80,6 @@ void main() {
 	Vertex vertex;
 
 	vertex.local_position = vec4(a_position.xyz, 1.0);
-<<<<<<< 6206cb0a2614b0bd31f6cdbb1df1e57c7623bafe
 #ifdef HAS_a_normal
     vertex.local_normal = vec4(normalize(a_normal), 0.0);
 #endif
@@ -90,13 +89,6 @@ void main() {
 
 @VertexShader
 
-=======
-	vertex.local_normal = vec4(0.0, 0.0, 1.0, 0.0);
-	@VertexShader
-#ifdef HAS_VertexMorphShader
-    @VertexMorphShader
-#endif
->>>>>>> first cut at morphing with blend shapes
 #ifdef HAS_VertexSkinShader
 @VertexSkinShader
 #endif
@@ -106,14 +98,14 @@ void main() {
 #endif
 
 #ifdef HAS_LIGHTSOURCES
-	LightVertex(vertex);
+    LightVertex(vertex);
 #endif
 #ifdef HAS_TEXCOORDS
-	@TEXCOORDS
+@TEXCOORDS
 #endif
-	viewspace_position = vertex.viewspace_position;
-	viewspace_normal = vertex.viewspace_normal;
-	view_direction = vertex.view_direction;
+    viewspace_position = vertex.viewspace_position;
+    viewspace_normal = vertex.viewspace_normal;
+    view_direction = vertex.view_direction;
 #ifdef HAS_MULTIVIEW
     bool render_mask = (u_render_mask & (gl_ViewID_OVR + uint(1))) > uint(0) ? true : false;
     mat4 mvp = u_mvp_[gl_ViewID_OVR];
