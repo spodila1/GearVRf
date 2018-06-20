@@ -64,6 +64,10 @@ layout(location = 21) out vec2 lightmap_coord1;
 layout (set = 0, binding = 17) uniform sampler2D blendshapeTexture;
 #endif
 
+#ifdef HAS_blendshapeTexture
+layout (set = 0, binding = 17) uniform sampler2D blendshapeTexture;
+#endif
+
 //
 // The Phong vertex shader supports up to 4 sets of texture coordinates.
 // It also supports blending of two textures to compose ambient,

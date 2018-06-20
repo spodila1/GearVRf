@@ -58,6 +58,10 @@ public class GVRFloatImage extends GVRImage
     public GVRFloatImage(GVRContext gvrContext, int pixelFormat)
     {
         super(gvrContext, NativeBitmapImage.constructor(ImageType.FLOAT_BITMAP.Value, pixelFormat));
+        if (pixelFormat == GL_RGB)
+        {
+            mFloatsPerPixel = 3;
+        }
     }
 
     /**

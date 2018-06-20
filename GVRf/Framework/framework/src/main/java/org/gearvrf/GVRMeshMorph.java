@@ -96,6 +96,7 @@ public class GVRMeshMorph extends GVRBehavior
         mWeights = new float[mNumBlendShapes];
         mBlendShapeDiffs = new float[mTexWidth * mNumVerts];
         float[] vec3data = baseShape.getFloatArray("a_position");
+        mNumVerts = baseShape.getVertexCount();
         for (int i = 0; i < mNumVerts; ++i)
         {
             int t = i * mFloatsPerVertex;
@@ -227,7 +228,8 @@ public class GVRMeshMorph extends GVRBehavior
             blendshapeTex.setImage(blendshapeImage);
             mtl.setTexture("blendshapeTexture", blendshapeTex);
         }
-        blendshapeImage.update(mTexWidth / 3, mNumVerts, mBlendShapeDiffs);
+        int width = mNumBlendShapes * mFloatsPerVertex / 3;
+        blendshapeImage.update(width, mNumVerts, mBlendShapeDiffs);
         return true;
     }
 
