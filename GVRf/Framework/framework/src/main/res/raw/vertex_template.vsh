@@ -9,7 +9,10 @@ layout(num_views = 2) in;
 #endif
 precision highp float;
 precision lowp int;
+
 @MATRIX_UNIFORMS
+
+@MATERIAL_UNIFORMS
 
 layout(location = 0) in vec3 a_position;
 
@@ -48,6 +51,9 @@ layout(location = 14) out vec2 lightmap_coord;
 layout(location = 15) out vec2 normal_coord;
 layout(location = 16) out vec2 emissive_coord;
 
+#ifdef HAS_blendshapeTexture
+layout (set = 0, binding = 17) uniform sampler2D blendshapeTexture;
+#endif
 
 struct Vertex
 {

@@ -8,8 +8,10 @@ layout(num_views = 2) in;
 #endif
 precision highp float;
 precision lowp int;
+
 @MATRIX_UNIFORMS
 
+@MATERIAL_UNIFORMS
 
 layout(location = 0) in vec3 a_position;
 
@@ -54,6 +56,10 @@ layout(location = 18) out vec2 diffuse_coord1;
 layout(location = 19) out vec2 ambient_coord1;
 layout(location = 20) out vec2 specular_coord1;
 layout(location = 21) out vec2 emissive_coord1;
+
+#ifdef HAS_blendshapeTexture
+layout (set = 0, binding = 17) uniform sampler2D blendshapeTexture;
+#endif
 
 //
 // The Phong vertex shader supports up to 4 sets of texture coordinates.

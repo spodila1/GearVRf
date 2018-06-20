@@ -23,19 +23,19 @@ namespace gvr {
 extern "C"
 {
     JNIEXPORT void JNICALL
-    Java_org_gearvrf_NativeFloatImage_update(JNIEnv* env, jobject obj, jlong jtexture,
+    Java_org_gearvrf_NativeFloatImage_update(JNIEnv* env, jobject obj, jlong jimage,
                                              jint width, jint height,
                                              jint pixelFormat, jfloatArray jdata);
 };
 
 JNIEXPORT void JNICALL
-Java_org_gearvrf_NativeFloatImage_update(JNIEnv * env, jobject obj, jlong jtexture,
+Java_org_gearvrf_NativeFloatImage_update(JNIEnv* env, jobject obj, jlong jimage,
                                          jint width, jint height,
                                          jint pixelFormat, jfloatArray jdata)
 {
-    FloatImage* texture = reinterpret_cast<FloatImage*>(jtexture);
+    FloatImage* image = reinterpret_cast<FloatImage*>(jimage);
     jfloat* data = env->GetFloatArrayElements(jdata, 0);
-    texture->update(env, width, height, jdata, pixelFormat);
+    image->update(env, width, height, jdata, pixelFormat);
     env->ReleaseFloatArrayElements(jdata, data, 0);
 }
 

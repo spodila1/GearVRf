@@ -29,7 +29,9 @@
 
 package org.gearvrf;
 
+import static android.opengl.GLES20.GL_RGB;
 import static android.opengl.GLES30.GL_RG;
+import static android.opengl.GLES30.GL_RGB32F;
 
 /**
  * A specialized image, for doing computation on the GPU.
@@ -41,6 +43,7 @@ import static android.opengl.GLES30.GL_RG;
  */
 public class GVRFloatImage extends GVRImage
 {
+    protected int mFloatsPerPixel = 2;
     /**
      * Create a floating-point image.
      *
@@ -63,12 +66,16 @@ public class GVRFloatImage extends GVRImage
             throws IllegalArgumentException
     {
         super(gvrContext, NativeBitmapImage.constructor(ImageType.FLOAT_BITMAP.Value, GL_RG));
-        NativeFloatTexture.update(getNative(), width, height, GL_RG, data);
+        NativeFloatImage.update(getNative(), width, height, GL_RG, data);
     }
 
     public GVRFloatImage(GVRContext gvrContext, int pixelFormat)
     {
         super(gvrContext, NativeBitmapImage.constructor(ImageType.FLOAT_BITMAP.Value, pixelFormat));
+        if (pixelFormat == GL_RGB)
+        {
+            mFloatsPerPixel = 3;
+        }
     }
 
     /**
@@ -96,18 +103,18 @@ public class GVRFloatImage extends GVRImage
      *             {@code data} is {@code null}, or if
      *             {@code data.length < height * width * 2}
      */
-    public boolean update(int width, int height, float[] data)
+    public void update(int width, int height, float[] data)
             throws IllegalArgumentException
     {
         if ((width <= 0) || (height <= 0) ||
-            (data == null) || (data.length < height * width * 2))
+            (data == null) || (data.length < height * width * mFloatsPerPixel))
         {
             throw new IllegalArgumentException();
         }
-        return NativeFloatTexture.update(getNative(), width, height, 0, data);
+        NativeFloatImage.update(getNative(), width, height, 0, data);
     }
 }
 
-class NativeFloatTexture {
-    static native boolean update(long pointer, int width, int height, int pixelFormat, float[] data);
+class NativeFloatImage {
+    static native void update(long pointer, int width, int height, int pixelFormat, float[] data);
 }
