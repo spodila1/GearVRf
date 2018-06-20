@@ -39,7 +39,6 @@ layout(location = 9) in vec3 a_bitangent;
 layout(location = 0) out vec3 view_direction;
 layout(location = 1) out vec3 viewspace_position;
 layout(location = 2) out vec3 viewspace_normal;
-layout(location = 3) out vec4 local_position;
 
 layout(location = 10) out vec2 diffuse_coord;
 layout(location = 11) out vec2 ambient_coord;
