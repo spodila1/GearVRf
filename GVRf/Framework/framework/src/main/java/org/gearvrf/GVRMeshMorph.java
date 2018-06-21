@@ -128,7 +128,7 @@ public class GVRMeshMorph extends GVRBehavior
         for (int i = 0; i < mNumVerts; ++i)
         {
             int b = i * mFloatsPerVertex + baseofs;
-            int s = (mNumVerts - i - 1) * mTexWidth + shapeofs;
+            int s = i * mTexWidth + shapeofs;
             mBlendShapeDiffs[s] = (vec3data[i * 3] - mBaseBlendShape[b]);
             mBlendShapeDiffs[s + 1] = (vec3data[i * 3 + 1] - mBaseBlendShape[b + 1]);
             mBlendShapeDiffs[s + 2] = (vec3data[i * 3 + 2] - mBaseBlendShape[b + 2]);
