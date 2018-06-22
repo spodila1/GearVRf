@@ -68,12 +68,14 @@ public class GVRMeshMorph extends GVRBehavior
             throw new IllegalStateException("Cannot attach a morph to a scene object without a base mesh");
         }
         GVRShaderData mtl = getMaterial();
-        if ((mtl == null) || !mtl.getTextureDescriptor().contains("blendshapeTexture"))
+        if ((mtl == null) ||
+            !mtl.getTextureDescriptor().contains("blendshapeTexture"))
         {
             throw new IllegalStateException("Scene object shader does not support morphing");
         }
-        mtl.setInt("u_numblendshapes", mNumBlendShapes);
         copyBaseShape(mesh.getVertexBuffer());
+        mtl.setInt("u_numblendshapes", mNumBlendShapes);
+        mtl.setFloatArray("u_blendweights", mWeights);
     }
 
     public void onDetach(GVRSceneObject sceneObj)
