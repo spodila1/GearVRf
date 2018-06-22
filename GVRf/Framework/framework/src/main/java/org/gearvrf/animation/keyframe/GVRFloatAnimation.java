@@ -25,7 +25,7 @@ public final class GVRFloatAnimation implements PrettyPrint
             mKeyData = keyData;
             mFloatsPerKey = keySize;
             mLastKeyIndex = -1;
-            mDuration = keyData[keyData.length - keySize] - keyData[0];Log.d("MORPH", "numkeys = %d floats per key = %d duration = %f ", getNumKeys(), mFloatsPerKey, mDuration);
+            mDuration = keyData[keyData.length - keySize] - keyData[0];
         }
 
         protected float[] interpolate(float time, float[] destValues)
@@ -128,87 +128,6 @@ public final class GVRFloatAnimation implements PrettyPrint
             }
             return false;
         }
-
-        public int getKeyIndex(float time)
-        {
-            // Try cached key first
-            int numKeys = getNumKeys();
-            int lastOfs = getKeyOffset(mLastKeyIndex + 1);
-            float lastTime = getTime(mLastKeyIndex);
-            float nextTime = getTime(mLastKeyIndex + 1);
-
-            if ((mLastKeyIndex != -1) && (lastOfs >= 0))
-            {
-                if ((lastTime <= time) &&
-                    (time < nextTime))
-                {
-                    return mLastKeyIndex;
-                }
-                float prevTime = getTime(mLastKeyIndex - 1);
-
-                if ((prevTime >= 0) &&
-                    (prevTime <= time) &&
-                    (time < lastTime))
-                {
-                    return --mLastKeyIndex;
-                }
-                lastTime = nextTime;
-                nextTime = getTime(mLastKeyIndex + 2);
-
-                // Try neighboring keys
-                if ((nextTime >= 0) &&
-                    (lastTime <= time) &&
-                    (time < nextTime))
-                {
-                    return ++mLastKeyIndex;
-                }
-            }
-
-            // Binary search for the interval
-            // Each of the index i represents an interval I(i) = [time(i), time(i + 1)).
-            int low = 0, high = numKeys - 2;
-            // invariant: I(low)...I(high) contains time if time can be found
-            // post-condition: |high - low| <= 1, only need to check I(low) and I(low + 1)
-            while ((high - low) > 1)
-            {
-                int mid = (low + high) / 2;
-                float midTime = getTime(mid);
-
-                if (midTime < 0)
-                {
-                    break;
-                }
-                if (time < midTime)
-                {
-                    high = mid;
-                }
-                else if (time >= getTime(mid + 1))
-                {
-                    low = mid + 1;
-                }
-                else
-                {
-                    // time in I(mid) by definition
-                    return mLastKeyIndex = mid;
-                }
-            }
-            if ((getTime(low) <= time) &&
-                (time < getTime(low + 1)))
-            {
-                return mLastKeyIndex = low;
-            }
-            float lowTime = getTime(low + 2);
-
-            if ((lowTime >= 0) &&
-               (getTime(low + 1) <= time) &&
-               (time < lowTime))
-            {
-                return mLastKeyIndex = low + 1;
-            }
-            Log.v(TAG, "Warning: interpolation failed at time " + time);
-            return mLastKeyIndex = -1;
-        }
-    };
 
     final private FloatKeyInterpolator mFloatInterpolator;
 
