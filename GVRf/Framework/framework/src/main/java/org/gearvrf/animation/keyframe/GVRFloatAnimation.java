@@ -15,117 +15,210 @@ public final class GVRFloatAnimation implements PrettyPrint
 
     public static class FloatKeyInterpolator
     {
-        private float[] mKeys;
-        private int mFloatsPerKey;
+        private final int mFloatsPerKey;
+        private final float[] mKeyData;
+        private final float mDuration;
         private int mLastKeyIndex;
-        private float[] mCurrentValues;
 
-        public FloatKeyInterpolator(float[] keys, int floatsPerKey)
+        public FloatKeyInterpolator(float[] keyData, int keySize)
         {
-            mKeys = keys;
-            mFloatsPerKey = floatsPerKey;
+            mKeyData = keyData;
+            mFloatsPerKey = keySize;
             mLastKeyIndex = -1;
-            mCurrentValues = new float[floatsPerKey - 1];
+            mDuration = keyData[keyData.length - keySize] - keyData[0];
         }
 
-        protected float[] interpolate(float time)
+        protected float[] interpolate(float time, float[] destValues)
         {
             int index = getKeyIndex(time);
-            int nextIndex = index;
+            float curTime = getTime(index);
+            float nextTime = getTime(index + 1);
 
-            if (index != -1 &&
-                (mKeys[index] <= time) &&
-                (time < mKeys[nextIndex]))
+            if ((index >= 0) &&
+                (curTime <= time) &&
+                (time < nextTime))
             {
                 // interpolate
-                float deltaTime = mKeys[nextIndex] - mKeys[index];
-                float factor = (time - mKeys[index] / deltaTime);
-                for (int i = 1; i < mFloatsPerKey; ++i)
-                {
-                    mCurrentValues[i] = factor * mKeys[index + i] + (1.0f - factor) * mKeys[nextIndex + i];
-                }
+                float deltaTime = nextTime - curTime;
+                float factor = (time - curTime) / deltaTime;
+
+                interpolateValues(index, destValues, factor);
             }
             else
             {
                 // time is out of range of animation time frame
-                if (time <= mKeys[0])
+                if (time <= getTime(0))
                 {
-                    System.arraycopy(mKeys, 1, mCurrentValues, 0, mFloatsPerKey - 1);
+                    getValues(0, destValues);
                 }
                 else
                 {
-                    System.arraycopy(mKeys, mKeys.length - mFloatsPerKey + 1, mCurrentValues, 0, mFloatsPerKey - 1);
+                    getValues(getNumKeys() - 1, destValues);
                 }
             }
-            return mCurrentValues;
+            return destValues;
         }
 
-        protected int getKeyIndex(float time)
+        public float getDuration()
+        {
+            return mDuration;
+        }
+
+        public int getKeyOffset(int keyIndex)
+        {
+            int index;
+
+            if (keyIndex < 0)
+            {
+                return -1;
+            }
+            index = keyIndex * mFloatsPerKey;
+            if (index + mFloatsPerKey > mKeyData.length)
+            {
+                return -1;
+            }
+            return index;
+        }
+
+        public int getNumKeys()
+        {
+            return mKeyData.length / mFloatsPerKey;
+        }
+
+        public float getTime(int keyIndex)
+        {
+            int ofs = getKeyOffset(keyIndex);
+            if (ofs >= 0)
+            {
+                return mKeyData[ofs];
+            }
+            return -1.0f;
+        }
+
+        public boolean setValues(int keyIndex, float[] values)
+        {
+            int ofs = getKeyOffset(keyIndex);
+            if (ofs >= 0)
+            {
+                System.arraycopy(values, 0, mKeyData, ofs + 1, mFloatsPerKey - 1);
+                return true;
+            }
+            return false;
+        }
+
+        public boolean interpolateValues(int keyIndex, float[] values, float factor)
+        {
+            int firstOfs = getKeyOffset(keyIndex);
+            int lastOfs = getKeyOffset(keyIndex + 1);
+
+            if ((firstOfs < 0) || (lastOfs < 0))
+            {
+                return false;
+            }
+            ++firstOfs;
+            ++lastOfs;
+            for (int i = 0; i < mFloatsPerKey - 1; ++i)
+            {
+                values[i] = factor * mKeyData[firstOfs + i] + (1.0f - factor) * mKeyData[lastOfs + i];
+            }
+            return true;
+        }
+
+        public boolean getValues(int keyIndex, float[] values)
+        {
+            int ofs = getKeyOffset(keyIndex);
+            if (ofs >= 0)
+            {
+                System.arraycopy(mKeyData, ofs + 1, values, 0, mFloatsPerKey - 1);
+                return true;
+            }
+            return false;
+        }
+
+        public int getKeyIndex(float time)
         {
             // Try cached key first
-            if (mLastKeyIndex != -1)
+            int numKeys = getNumKeys();
+            int lastOfs = getKeyOffset(mLastKeyIndex + 1);
+            float lastTime = getTime(mLastKeyIndex);
+            float nextTime = getTime(mLastKeyIndex + 1);
+
+            if ((mLastKeyIndex != -1) && (lastOfs >= 0))
             {
-                if ((mKeys[mLastKeyIndex] <= time) &&
-                    (time < mKeys[mLastKeyIndex + mFloatsPerKey]))
+                if ((lastTime <= time) &&
+                    (time < nextTime))
                 {
                     return mLastKeyIndex;
                 }
-                // Try neighboring keys
-                if (((mLastKeyIndex + 2 * mFloatsPerKey) < mKeys.length) &&
-                     (mKeys[mLastKeyIndex + mFloatsPerKey] <= time) &&
-                     (time < mKeys[mLastKeyIndex + 2 * mFloatsPerKey]))
+                float prevTime = getTime(mLastKeyIndex - 1);
+
+                if ((prevTime >= 0) &&
+                    (prevTime <= time) &&
+                    (time < lastTime))
                 {
-                    return mLastKeyIndex += mFloatsPerKey;
+                    return --mLastKeyIndex;
                 }
-                if ((mLastKeyIndex >= 1) &&
-                    ((mKeys[mLastKeyIndex - mFloatsPerKey]) <= time) &&
-                    (time < mKeys[mLastKeyIndex]))
+                lastTime = nextTime;
+                nextTime = getTime(mLastKeyIndex + 2);
+
+                // Try neighboring keys
+                if ((nextTime >= 0) &&
+                    (lastTime <= time) &&
+                    (time < nextTime))
                 {
-                    return mLastKeyIndex -= mFloatsPerKey;
+                    return ++mLastKeyIndex;
                 }
             }
 
             // Binary search for the interval
             // Each of the index i represents an interval I(i) = [time(i), time(i + 1)).
-            int low = 0, high = mKeys.length - 2 * mFloatsPerKey;
+            int low = 0, high = numKeys - 2;
             // invariant: I(low)...I(high) contains time if time can be found
             // post-condition: |high - low| <= 1, only need to check I(low) and I(low + 1)
-            while (high - low > 1)
+            while ((high - low) > 1)
             {
-                int mid = ((low + high) / 2) * mFloatsPerKey;
-                if (time < mKeys[mid])
+                int mid = (low + high) / 2;
+                float midTime = getTime(mid);
+
+                if (midTime < 0)
+                {
+                    break;
+                }
+                if (time < midTime)
                 {
                     high = mid;
                 }
-                else if (time >= mKeys[mid + mFloatsPerKey])
+                else if (time >= getTime(mid + 1))
                 {
                     low = mid + 1;
                 }
                 else
-                    {
+                {
                     // time in I(mid) by definition
                     return mLastKeyIndex = mid;
                 }
             }
-            if ((mKeys[low] <= time) &&
-                (time < mKeys[low + mFloatsPerKey]))
+            if ((getTime(low) <= time) &&
+                (time < getTime(low + 1)))
             {
                 return mLastKeyIndex = low;
             }
-            if ((low + 2 * mFloatsPerKey < mKeys.length) &&
-                (mKeys[low + mFloatsPerKey] <= time) &&
-                (time < mKeys[low + 2 * mFloatsPerKey]))
+            float lowTime = getTime(low + 2);
+
+            if ((lowTime >= 0) &&
+               (getTime(low + 1) <= time) &&
+               (time < lowTime))
             {
-                return mLastKeyIndex = low + mFloatsPerKey;
+                return mLastKeyIndex = low + 1;
             }
             Log.v(TAG, "Warning: interpolation failed at time " + time);
             return mLastKeyIndex = -1;
         }
     };
 
-    private int mFloatsPerKey;
-    protected float[] mKeys;
-    private final FloatKeyInterpolator mFloatInterpolator;
+    final private int mFloatsPerKey;
+    final protected float[] mKeys;
+    final private FloatKeyInterpolator mFloatInterpolator;
 
     /**
      * Constructor.
@@ -135,6 +228,14 @@ public final class GVRFloatAnimation implements PrettyPrint
      */
     public GVRFloatAnimation(float[] keyData, int keySize)
     {
+        if (keySize <= 2)
+        {
+            throw new IllegalArgumentException("The number of floats per key must be > 1, the key includes time");
+        }
+        if ((keyData == null) || (keyData.length < keySize))
+        {
+            throw new IllegalArgumentException("Not enough key data");
+        }
         mFloatsPerKey = keySize;
         mKeys = keyData;
         mFloatInterpolator = new FloatKeyInterpolator(mKeys, keySize);
@@ -175,13 +276,14 @@ public final class GVRFloatAnimation implements PrettyPrint
     public void setKey(int keyIndex, float time, final float[] values)
     {
         int index = keyIndex * mFloatsPerKey;
+        Integer valSize = mFloatsPerKey - 1;
+
+        if (values.length != valSize)
+        {
+            throw new IllegalArgumentException("This key needs " + valSize.toString() + " float per value");
+        }
         mKeys[index] = time;
         System.arraycopy(values, 0, mKeys, index + 1, values.length);
-    }
-
-    public void setKeys(float[] keys)
-    {
-        mKeys = keys;
     }
 
     /**
@@ -193,8 +295,7 @@ public final class GVRFloatAnimation implements PrettyPrint
      */
     public void animate(float animationTime, float[] destValues)
     {
-        float[] currentValues = mFloatInterpolator.interpolate(animationTime);
-        System.arraycopy(currentValues, 0, destValues, 0, mFloatsPerKey - 1);
+        mFloatInterpolator.interpolate(animationTime * mFloatInterpolator.getDuration(), destValues);
     }
 
     @Override
