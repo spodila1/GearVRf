@@ -25,7 +25,7 @@ public final class GVRFloatAnimation implements PrettyPrint
             mKeyData = keyData;
             mFloatsPerKey = keySize;
             mLastKeyIndex = -1;
-            mDuration = keyData[keyData.length - keySize] - keyData[0];
+            mDuration = keyData[keyData.length - keySize] - keyData[0];Log.d("MORPH", "numkeys = %d floats per key = %d duration = %f ", getNumKeys(), mFloatsPerKey, mDuration);
         }
 
         protected float[] interpolate(float time, float[] destValues)
@@ -111,15 +111,9 @@ public final class GVRFloatAnimation implements PrettyPrint
             int firstOfs = getKeyOffset(keyIndex);
             int lastOfs = getKeyOffset(keyIndex + 1);
 
-            if ((firstOfs < 0) || (lastOfs < 0))
+            for (int i = 1; i < mFloatsPerKey; ++i)
             {
-                return false;
-            }
-            ++firstOfs;
-            ++lastOfs;
-            for (int i = 0; i < mFloatsPerKey - 1; ++i)
-            {
-                values[i] = factor * mKeyData[firstOfs + i] + (1.0f - factor) * mKeyData[lastOfs + i];
+                values[i - 1] = (1.0f - factor) * mKeyData[firstOfs + i] + factor * mKeyData[lastOfs + i];
             }
             return true;
         }
@@ -216,8 +210,6 @@ public final class GVRFloatAnimation implements PrettyPrint
         }
     };
 
-    final private int mFloatsPerKey;
-    final protected float[] mKeys;
     final private FloatKeyInterpolator mFloatInterpolator;
 
     /**
@@ -236,54 +228,7 @@ public final class GVRFloatAnimation implements PrettyPrint
         {
             throw new IllegalArgumentException("Not enough key data");
         }
-        mFloatsPerKey = keySize;
-        mKeys = keyData;
-        mFloatInterpolator = new FloatKeyInterpolator(mKeys, keySize);
-    }
-
-    /**
-     * Returns the number of keys.
-     * 
-     * @return the number of keys
-     */
-    public int getNumKeys() {
-        return mKeys.length / mFloatsPerKey;
-    }
-
-    /**
-     * Returns the time component of the specified key.
-     * 
-     * @param keyIndex the index of the position key
-     * @return the time component
-     */
-    public double getTime(int keyIndex) {
-        return mKeys[keyIndex * mFloatsPerKey];
-    }
-
-    /**
-     * Returns the scaling factor as vector.<p>
-     * 
-     * @param keyIndex the index of the scale key
-     * 
-     * @return the scaling factor as vector
-     */
-    public void getKey(int keyIndex, float[] values)
-    {
-        int index = keyIndex * mFloatsPerKey;
-        System.arraycopy(mKeys, index + 1, values, 0, values.length);
-    }
-
-    public void setKey(int keyIndex, float time, final float[] values)
-    {
-        int index = keyIndex * mFloatsPerKey;
-        Integer valSize = mFloatsPerKey - 1;
-
-        if (values.length != valSize)
-        {
-            throw new IllegalArgumentException("This key needs " + valSize.toString() + " float per value");
-        }
-        mKeys[index] = time;
-        System.arraycopy(values, 0, mKeys, index + 1, values.length);
+        mFloatInterpolator = new FloatKeyInterpolator(keyData, keySize);
     }
 
     /**
@@ -302,7 +247,7 @@ public final class GVRFloatAnimation implements PrettyPrint
     public void prettyPrint(StringBuffer sb, int indent) {
         sb.append(Log.getSpaces(indent));
         sb.append(GVRFloatAnimation.class.getSimpleName());
-        sb.append(" [ Keys=" + mKeys.length + "]");
+        sb.append(" [ Key[" + mFloatInterpolator.getNumKeys() + "]");
         sb.append(System.lineSeparator());
     }
 
