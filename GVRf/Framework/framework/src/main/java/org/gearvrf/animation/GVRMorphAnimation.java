@@ -37,6 +37,7 @@ public final class GVRMorphAnimation extends GVRAnimation implements PrettyPrint
         mKeyInterpolator.animate(animationTime*mDuration, mCurrentValues);
 
         morph.setWeights(mCurrentValues);
+
     }
 
     @Override

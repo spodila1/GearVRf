@@ -82,6 +82,7 @@ public class GVRMeshMorph extends GVRBehavior
         }
         mFloatsPerVertex = 0;
         mTexWidth = 0; // 3 floats for position
+
     }
 
 
@@ -109,15 +110,18 @@ public class GVRMeshMorph extends GVRBehavior
         {
             throw new IllegalStateException("Cannot attach a morph to a scene object without a base mesh");
         }
+
         GVRMesh mesh = ((GVRRenderData) comp).getMesh();
         if (mesh == null)
         {
             throw new IllegalStateException("Cannot attach a morph to a scene object without a base mesh");
         }
         GVRShaderData mtl = getMaterial();
+
         if ((mtl == null) ||
                 !mtl.getTextureDescriptor().contains("blendshapeTexture"))
         {
+
             throw new IllegalStateException("Scene object shader does not support morphing");
         }
 
@@ -150,9 +154,9 @@ public class GVRMeshMorph extends GVRBehavior
             mFloatsPerVertex += 6;
         }
         mbaseShape = baseShape;
-        Log.i("sakja","as "+baseShape.getDescriptor());
+
         mNumVerts = baseShape.getVertexCount();
-        //Log.i("sadsda","sad "+mNumVerts);
+
         if (mNumVerts <= 0)
         {
             throw new IllegalArgumentException("Base shape has no vertices");
@@ -161,7 +165,7 @@ public class GVRMeshMorph extends GVRBehavior
         mBaseBlendShape = new float[mFloatsPerVertex * mNumVerts];
         mWeights = new float[mNumBlendShapes];
         mBlendShapeDiffs = new float[mTexWidth * mNumVerts];
-        Log.i("sadajsd","asd"+mTexWidth);
+
 
         copyBaseAttribute(baseShape, "a_position", 0);
         if ((mDescriptorFlags & HAS_NORMAL) != 0)
@@ -198,6 +202,7 @@ public class GVRMeshMorph extends GVRBehavior
         {
             throw new IllegalArgumentException("All blend shapes must have the same number of vertices");
         }
+
 
 
         for (int i = 0; i < mNumVerts; ++i)
@@ -248,9 +253,9 @@ public class GVRMeshMorph extends GVRBehavior
 
     public void setBlendShape(int index, GVRVertexBuffer vbuf)
     {
+
         int shapeDescriptorFlags = 0;
         String shapeDescriptor = vbuf.getDescriptor();
-
         copyBlendShape(index * mFloatsPerVertex, 0, vbuf.getFloatArray("a_position"));
 
         if (shapeDescriptor.contains("a_normal"))
@@ -282,8 +287,11 @@ public class GVRMeshMorph extends GVRBehavior
         GVRComponent comp = getComponent(GVRRenderData.getComponentType());
         if (comp == null)
         {
+
             return null;
+
         }
+
         return ((GVRRenderData) comp).getMaterial();
     }
 
@@ -297,7 +305,6 @@ public class GVRMeshMorph extends GVRBehavior
         {
             return false;
         }
-//        Log.d("MORPH", dumpDiffs());
         if (mtl.hasTexture("blendshapeTexture"))
         {
             blendshapeTex = mtl.getTexture("blendshapeTexture");

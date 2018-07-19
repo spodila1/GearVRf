@@ -157,7 +157,9 @@ public class GVRShaderData extends GVRHybridObject
      * </p>
      * @return string with texture descriptor from shader
      */
-    public String getTextureDescriptor() { return mTextureDescriptor; }
+    public String getTextureDescriptor() {
+        Log.i("desctexture","dzs"+mTextureDescriptor);
+        return mTextureDescriptor; }
 
     /**
      * Determine whether a named uniform has been set in this material.
