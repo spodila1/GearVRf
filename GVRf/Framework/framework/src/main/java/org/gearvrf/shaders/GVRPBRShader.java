@@ -68,11 +68,11 @@ public class GVRPBRShader extends GVRShaderTemplate
         setSegment("FragmentSurface", surfaceShader);
         setSegment("FragmentAddLight", addLight);
         setSegment("VertexSkinShader", skinShader);
-        setSegment("VertexMorphShader", "");
-        setSegment("VertexShader", vtxShader);
         setSegment("VertexMorphShader", morphShader);
+        setSegment("VertexShader", vtxShader);
         setSegment("VertexNormalShader", normalShader);
         setSegment("VertexMorphShader", morphShader);
+
 
         mHasVariants = true;
         mUsesLights = true;

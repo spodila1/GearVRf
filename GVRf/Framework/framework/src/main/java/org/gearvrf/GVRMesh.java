@@ -70,6 +70,8 @@ public class GVRMesh extends GVRHybridObject implements PrettyPrint {
     protected GVRVertexBuffer mVertices;
     protected GVRIndexBuffer mIndices;
     protected List<GVRBone> mBones = new ArrayList<GVRBone>();
+    private List<GVRVertexBuffer> mAnimationVertices = new ArrayList<GVRVertexBuffer>();
+    private List<Float> mAnimationWeights = new ArrayList<Float>();
 
     /**
      * Construct a mesh with default vertex layout
@@ -886,6 +888,47 @@ public class GVRMesh extends GVRHybridObject implements PrettyPrint {
         return mesh;
     }
 
+
+    /*
+        add vertex information of blend shapes
+     */
+    void addAnimationMesh(GVRVertexBuffer animBuff)
+    {
+        mAnimationVertices.add(animBuff);
+    }
+
+
+    /*
+        add weight of a animation mesh
+     */
+    void addAnimationWeight(float weight){
+        mAnimationWeights.add(weight);
+    }
+
+
+    /**
+     *
+     * @return List of {@link GVRVertexBuffer} containing the blend shapes associated with
+     * this GVRMesh.
+     */
+
+    public List<GVRVertexBuffer> getAnimationMeshInfo()
+    {
+        return mAnimationVertices;
+    }
+
+    /**
+     *
+     * @return List of floats representing default weights of animation meshes held by this GVRMesh.
+     */
+
+    public List<Float> getAnimationWeights() {
+        return mAnimationWeights;
+    }
+
+
+
+
     @Override
     public String toString() {
         StringBuffer sb = new StringBuffer();
@@ -896,6 +939,7 @@ public class GVRMesh extends GVRHybridObject implements PrettyPrint {
     final static String KEY_TEXCOORD = "a_texcoord";
     final static String KEY_NORMAL = "a_normal";
     final static String KEY_POSITION = "a_position";
+
 }
 
 class NativeMesh {
