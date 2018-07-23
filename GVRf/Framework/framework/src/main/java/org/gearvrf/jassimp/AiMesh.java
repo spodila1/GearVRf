@@ -552,7 +552,7 @@ public final class AiMesh {
      */
     public FloatBuffer getTangentBuffer() {
         if (m_tangents == null) {
-           // Log.i("tanu","");
+
             return null;
         }
 

@@ -67,8 +67,8 @@ struct Vertex
 {
 	vec4 local_position;
 	vec4 local_normal;
-	vec4 local_tangent;
-	vec4 local_bitangent;
+	vec3 local_tangent;
+	vec3 local_bitangent;
 	vec3 viewspace_position;
 	vec3 viewspace_normal;
 	vec3 view_direction;

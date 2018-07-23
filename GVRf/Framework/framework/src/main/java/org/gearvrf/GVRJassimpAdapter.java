@@ -125,33 +125,14 @@ class   GVRJassimpAdapter {
             if (normalsBuffer != null)
             {
                 vertexDescriptor += " float3 a_normal";
-               // Log.i("testinn","sda"+normalsBuffer.capacity());
+
                 normalsArray = new float[normalsBuffer.capacity()];
                 normalsBuffer.get(normalsArray, 0, normalsBuffer.capacity());
             }
 
         }
 
-/*
-        if (doLighting && aiMesh.hasTangentsAndBitangents())
-        {
 
-           // vertexDescriptor += " float3 a_tangent float3 a_bitangent";
-            FloatBuffer tangentBuffer = aiMesh.getTangentBuffer();
-            Log.i("sadsadas","asdasd");
-            tangentsArray = new float[tangentBuffer.capacity()];
-
-
-            tangentBuffer.get(tangentsArray, 0, tangentBuffer.capacity());
-            GVRMesh mesh = new GVRMesh(ctx, vertexDescriptor);
-            mesh.setNormals(normalsArray);
-            mesh.setFloatArray("a_tangent", tangentsArray);
-
-
-
-        }
-
-*/
 
 
 
@@ -180,13 +161,22 @@ class   GVRJassimpAdapter {
         }
         if (doLighting && aiMesh.hasTangentsAndBitangents())
         {
+
             vertexDescriptor += " float3 a_tangent float3 a_bitangent";
+
             FloatBuffer tangentBuffer = aiMesh.getTangentBuffer();
-            FloatBuffer bitangentBuffer = aiMesh.getBitangentBuffer();
+
             tangentsArray = new float[tangentBuffer.capacity()];
             tangentBuffer.get(tangentsArray, 0, tangentBuffer.capacity());
-            bitangentsArray = new float[bitangentBuffer.capacity()];
-            bitangentBuffer.get(bitangentsArray, 0, bitangentBuffer.capacity());
+            bitangentsArray = new float[tangentsArray.length];
+            for(int i = 0; i < tangentsArray.length; i += 3)
+            {
+                Vector3f tangent = new Vector3f(tangentsArray[i], tangentsArray[i + 1], tangentsArray[i + 2]);
+                Vector3f normal = new Vector3f(normalsArray[i], normalsArray[i + 1], normalsArray[i + 2]);
+                Vector3f bitangent = new Vector3f();
+                normal.cross(tangent, bitangent);
+                bitangentsArray[i] = bitangent.x; bitangentsArray[i+1] = bitangent.y; bitangentsArray[i + 2] = bitangent.z;
+            }
         }
 
         GVRMesh mesh = new GVRMesh(ctx, vertexDescriptor);
@@ -227,8 +217,9 @@ class   GVRJassimpAdapter {
         }
         if (tangentsArray != null)
         {
-            //Log.i("testinn","sdaa ");
-           // mesh.setFloatArray("a_tangent", tangentsArray);
+
+            mesh.setFloatArray("a_tangent", tangentsArray);
+
         }
         if (bitangentsArray != null)
         {
@@ -273,7 +264,7 @@ class   GVRJassimpAdapter {
         for(AiAnimMesh animMesh : aiMesh.getAnimationMeshes())
         {
             GVRVertexBuffer animBuff = new GVRVertexBuffer(mesh.getVertexBuffer(),
-                    "float3 a_position float3 a_tangent float3 a_normal float3 a_bitangent");
+                    "float3 a_position float3 a_normal float3 a_tangent float3 a_bitangent");
 
             float[] vertexArray = null;
             float[] normalArray = null;
@@ -318,7 +309,7 @@ class   GVRJassimpAdapter {
             }
 
             animBuff.setFloatArray("a_bitangent", bitangentArray);
-           // Log.i("checkforBi","tangents" +bitangentArray[0]);
+
             mesh.addAnimationMesh(animBuff);
             mesh.addAnimationWeight(animMesh.getDefaultWeight());
         }

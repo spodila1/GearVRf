@@ -152,10 +152,10 @@ public class GVRMeshMorph extends GVRBehavior
         }
         if (baseDescriptor.contains("a_tangent"))
         {
-            Log.i("descp "," base shape "+baseDescriptor);
 
-         //   mDescriptorFlags |= HAS_TANGENT;
-         //   mFloatsPerVertex += 6;
+
+            mDescriptorFlags |= HAS_TANGENT;
+            mFloatsPerVertex += 6;
         }
         mbaseShape = baseShape;
 
@@ -178,8 +178,8 @@ public class GVRMeshMorph extends GVRBehavior
         }
         if ((mDescriptorFlags & HAS_TANGENT) != 0)
         {
-          //  copyBaseAttribute(baseShape, "a_tangent", 6);
-          //  copyBaseAttribute(baseShape, "a_bitangent", 9);
+            copyBaseAttribute(baseShape, "a_tangent", 6);
+            copyBaseAttribute(baseShape, "a_bitangent", 9);
         }
     }
 
@@ -262,7 +262,7 @@ public class GVRMeshMorph extends GVRBehavior
         int shapeDescriptorFlags = 0;
         String shapeDescriptor = vbuf.getDescriptor();
 
-        Log.i("descp "," blend shape "+shapeDescriptor);
+
 
         copyBlendShape(index * mFloatsPerVertex, 0, vbuf.getFloatArray("a_position"));
 
@@ -272,7 +272,7 @@ public class GVRMeshMorph extends GVRBehavior
         }
         if (shapeDescriptor.contains("a_tangent"))
         {
-          //  shapeDescriptorFlags |= HAS_TANGENT;
+            shapeDescriptorFlags |= HAS_TANGENT;
         }
         if (shapeDescriptorFlags != mDescriptorFlags)
         {
@@ -284,8 +284,8 @@ public class GVRMeshMorph extends GVRBehavior
         }
         if ((shapeDescriptorFlags & HAS_TANGENT) != 0)
         {
-           // copyBlendShape(index * mFloatsPerVertex + 6, 6, vbuf.getFloatArray("a_tangent"));
-           // copyBlendShape(index * mFloatsPerVertex + 9, 9, vbuf.getFloatArray("a_bitangent"));
+            copyBlendShape(index * mFloatsPerVertex + 6, 6, vbuf.getFloatArray("a_tangent"));
+            copyBlendShape(index * mFloatsPerVertex + 9, 9, vbuf.getFloatArray("a_bitangent"));
         }
     }
 
