@@ -59,10 +59,6 @@ layout(location = 16) out vec2 normal_coord;
 layout (set = 0, binding = 17) uniform sampler2D blendshapeTexture;
 #endif
 
-#ifdef HAS_blendshapeTexture
-layout (set = 0, binding = 17) uniform sampler2D blendshapeTexture;
-#endif
-
 struct Vertex
 {
 	vec4 local_position;
