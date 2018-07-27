@@ -20,3 +20,13 @@ new File("../../../").eachDir {
         println "including modules from " + it.toString()
     }
 }
+
+
+include ':gvr-unittestutils'
+project(':gvr-unittestutils').projectDir=file('/home/sah.pod/work/GearVRf-Tests/gvr-unittestutils')
+
+include ':asset-tests';
+project(':asset-tests').projectDir=new File('/home/sah.pod/work/GearVRf-Tests/asset-tests/app')
+
+include ':framework-tests'
+project(':framework-tests').projectDir=file('/home/sah.pod/work/GearVRf-Tests/framework-tests/app')
