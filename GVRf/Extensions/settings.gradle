@@ -40,7 +40,8 @@ project(':gvrf-particlesystem').projectDir = new File('gvrf-particlesystem')
 include ':ResonanceAudio'
 project(':ResonanceAudio').projectDir = new File('ResonanceAudio/resonanceaudio')
 
-
+include ':x3d'
+project(':x3d').projectDir = new File('x3d')
 
 if (hasProperty('OVR_PLATFORM_SDK')){
     include ':platformsdk_support'
