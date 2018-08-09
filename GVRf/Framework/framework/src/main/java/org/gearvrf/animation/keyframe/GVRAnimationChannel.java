@@ -268,7 +268,6 @@ public final class GVRAnimationChannel implements PrettyPrint {
         return mPreState;
     }
 
-
     /**
      * Defines how the animation behaves after the last key was processed.<p>
      *
