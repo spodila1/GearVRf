@@ -414,5 +414,4 @@ public final class GVRFloatAnimation implements PrettyPrint
         prettyPrint(sb, 0);
         return sb.toString();
     }
-
 }
