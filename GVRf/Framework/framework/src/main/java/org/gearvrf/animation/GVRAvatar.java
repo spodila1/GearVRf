@@ -353,7 +353,7 @@ public class GVRAvatar extends GVRBehavior implements IEventReceiver
             {
                 if (errors == null)
                 {
-                    errors = "No aniations found in " + filePath;
+                    errors = "No animations found in " + filePath;
                 }
                 context.getEventManager().sendEvent(GVRAvatar.this, IAvatarEvents.class, "onAnimationLoaded", null, filePath, errors);
             }

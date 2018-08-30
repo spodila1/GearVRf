@@ -99,6 +99,7 @@ public class GVRMeshMorph extends GVRBehavior
 
     }
 
+
     static public long getComponentType() { return TYPE_MESHMORPH; }
 
     /**
@@ -162,6 +163,7 @@ public class GVRMeshMorph extends GVRBehavior
         }
         mbaseShape = baseShape;
         mNumVerts = baseShape.getVertexCount();
+
         if (mNumVerts <= 0)
         {
             throw new IllegalArgumentException("Base shape has no vertices");
@@ -255,6 +257,7 @@ public class GVRMeshMorph extends GVRBehavior
     {
 
         int shapeDescriptorFlags = 0;
+        float[] vec3dataBase;
         String shapeDescriptor = vbuf.getDescriptor();
 
         copyBlendShape(index * mFloatsPerVertex, 0, vbuf.getFloatArray("a_position"));
@@ -266,18 +269,28 @@ public class GVRMeshMorph extends GVRBehavior
         {
             shapeDescriptorFlags |= HAS_TANGENT;
         }
-        if (shapeDescriptorFlags != mDescriptorFlags)
-        {
-            throw new IllegalArgumentException("Blend shapes descriptor are to be in consistent");
-        }
         if ((shapeDescriptorFlags & HAS_NORMAL) != 0)
         {
             copyBlendShape(index * mFloatsPerVertex + 3, 3, vbuf.getFloatArray("a_normal"));
         }
-        if ((shapeDescriptorFlags & HAS_TANGENT) != 0)
+        else
         {
+            //mbaseShape
+           // copyBaseAttribute(mbaseShape, "a_tangent", 6);
+            //copy base shape data
+            vec3dataBase = mbaseShape.getFloatArray("a_normal");
+            copyBlendShape(index * mFloatsPerVertex + 3, 3, vec3dataBase);
+
+        }
+        if ((shapeDescriptorFlags & HAS_TANGENT) != 0) {
             copyBlendShape(index * mFloatsPerVertex + 6, 6, vbuf.getFloatArray("a_tangent"));
-            copyBlendShape(index * mFloatsPerVertex + 9, 9, vbuf.getFloatArray("a_bitangent"));
+        }
+        else
+        {
+            //copy base shape data
+            vec3dataBase = mbaseShape.getFloatArray("a_tangent");
+            copyBlendShape(index * mFloatsPerVertex + 6, 6, vec3dataBase);
+
         }
     }
 
@@ -324,6 +337,7 @@ public class GVRMeshMorph extends GVRBehavior
             blendshapeTex.setImage(blendshapeImage);
             mtl.setTexture("blendshapeTexture", blendshapeTex);
         }
+        Log.v("MORPH", "Blend Shape Diffs\n%s", dumpDiffs(20));
         blendshapeImage.update(mTexWidth / 3, mNumVerts, mBlendShapeDiffs);
         return true;
     }

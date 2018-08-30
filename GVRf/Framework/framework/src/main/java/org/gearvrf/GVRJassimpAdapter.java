@@ -265,62 +265,68 @@ class  GVRJassimpAdapter
     public void setMeshMorphComponent(GVRMesh mesh, GVRSceneObject sceneObject, AiMesh aiMesh)
     {
         int nAnimationMeshes = aiMesh.getAnimationMeshes().size();
-        if(nAnimationMeshes == 0)
+        if (nAnimationMeshes == 0)
             return;
-
         GVRMeshMorph morph = new GVRMeshMorph(mContext, nAnimationMeshes);
         sceneObject.attachComponent(morph);
         int blendShapeNum = 0;
 
         for(AiAnimMesh animMesh : aiMesh.getAnimationMeshes())
         {
-            GVRVertexBuffer animBuff = new GVRVertexBuffer(mesh.getVertexBuffer(),
-                    "float3 a_position float3 a_tangent float3 a_normal float3 a_bitangent");
+            String vertexDesc = "float3 a_position ";
 
             float[] vertexArray = null;
             float[] normalArray = null;
             float[] tangentArray = null;
             float[] bitangentArray = null;
-
-            //copy target positions to anim vertex buffer
             FloatBuffer animPositionBuffer = animMesh.getPositionBuffer();
+            FloatBuffer animNormalBuffer = animMesh.getNormalBuffer();
+            FloatBuffer animTangentBuffer = animMesh.getTangentBuffer();
+
+            if (animNormalBuffer != null)
+            {
+                vertexDesc += "float3 a_normal ";
+            }
+            if (animTangentBuffer != null)
+            {
+                vertexDesc += "float3 a_tangent float3 a_bitangent";
+            }
+
+            GVRVertexBuffer animBuff = new GVRVertexBuffer(mesh.getVertexBuffer(), vertexDesc);
+            //copy target positions to anim vertex buffer
             if (animPositionBuffer != null) {
                 vertexArray = new float[animPositionBuffer.capacity()];
                 animPositionBuffer.get(vertexArray, 0, animPositionBuffer.capacity());
+                animBuff.setFloatArray("a_position",vertexArray);
             }
-            animBuff.setFloatArray("a_position",vertexArray);
 
             //copy target normals to anim normal buffer
-            FloatBuffer animNormalBuffer = animMesh.getNormalBuffer();
             if (animNormalBuffer != null) {
                 normalArray = new float[animNormalBuffer.capacity()];
                 animNormalBuffer.get(normalArray, 0, animNormalBuffer.capacity());
+                animBuff.setFloatArray("a_normal",normalArray);
             }
-            animBuff.setFloatArray("a_normal",normalArray);
 
 
             //copy target tangents to anim tangent buffer
-            FloatBuffer animTangentBuffer = animMesh.getTangentBuffer();
             if (animTangentBuffer != null) {
                 tangentArray = new float[animTangentBuffer.capacity()];
                 animTangentBuffer.get(tangentArray, 0, animTangentBuffer.capacity());
+                animBuff.setFloatArray("a_tangent",tangentArray);
+
+                //calculate bitangents
+
+                bitangentArray = new float[tangentArray.length];
+                for(int i = 0; i < tangentArray.length; i += 3)
+                {
+                    Vector3f tangent = new Vector3f(tangentArray[i], tangentArray[i + 1], tangentArray[i + 2]);
+                    Vector3f normal = new Vector3f(normalArray[i], normalArray[i + 1], normalArray[i + 2]);
+                    Vector3f bitangent = new Vector3f();
+                    normal.cross(tangent, bitangent);
+                    bitangentArray[i] = bitangent.x; bitangentArray[i+1] = bitangent.y; bitangentArray[i + 2] = bitangent.z;
+                    animBuff.setFloatArray("a_bitangent", bitangentArray);
+                }
             }
-            animBuff.setFloatArray("a_tangent",tangentArray);
-
-            //calculate bitangents
-
-            bitangentArray = new float[tangentArray.length];
-            for(int i = 0; i < tangentArray.length; i += 3)
-            {
-                Vector3f tangent = new Vector3f(tangentArray[i], tangentArray[i + 1], tangentArray[i + 2]);
-                Vector3f normal = new Vector3f(normalArray[i], normalArray[i + 1], normalArray[i + 2]);
-                Vector3f bitangent = new Vector3f();
-                normal.cross(tangent, bitangent);
-                bitangentArray[i] = bitangent.x; bitangentArray[i+1] = bitangent.y; bitangentArray[i + 2] = bitangent.z;
-            }
-
-            animBuff.setFloatArray("a_bitangent", bitangentArray);
-
             morph.setBlendShape(blendShapeNum, animBuff);
             blendShapeNum++;
         }
@@ -779,18 +785,18 @@ class  GVRJassimpAdapter
     {
         switch (behavior)
         {
-        case DEFAULT:
-            return GVRAnimationBehavior.DEFAULT;
-        case CONSTANT:
-            return GVRAnimationBehavior.CONSTANT;
-        case LINEAR:
-            return GVRAnimationBehavior.LINEAR;
-        case REPEAT:
-            return GVRAnimationBehavior.REPEAT;
-        default:
-            // Unsupported setting
-            Log.e(TAG, "Cannot convert animation behavior: %s", behavior);
-            return GVRAnimationBehavior.DEFAULT;
+            case DEFAULT:
+                return GVRAnimationBehavior.DEFAULT;
+            case CONSTANT:
+                return GVRAnimationBehavior.CONSTANT;
+            case LINEAR:
+                return GVRAnimationBehavior.LINEAR;
+            case REPEAT:
+                return GVRAnimationBehavior.REPEAT;
+            default:
+                // Unsupported setting
+                Log.e(TAG, "Cannot convert animation behavior: %s", behavior);
+                return GVRAnimationBehavior.DEFAULT;
         }
     }
 
@@ -870,7 +876,7 @@ class  GVRJassimpAdapter
 
         traverseGraph(model, scene.getSceneRoot(sWrapperProvider), lightList);
         if (!doAnimation ||
-            ((processAnimations(model, scene, settings.contains(GVRImportSettings.START_ANIMATIONS)) == null)))
+                ((processAnimations(model, scene, settings.contains(GVRImportSettings.START_ANIMATIONS)) == null)))
         {
             makeSkeleton(model);
         }
@@ -951,7 +957,7 @@ class  GVRJassimpAdapter
             if ("".equals(nodeName))
             {
                 if ((mNodeMap.get(parent) == null) ||
-                    ((aiChild = handleNoName(node, sceneObject)) == null))
+                        ((aiChild = handleNoName(node, sceneObject)) == null))
                 {
                     nodeName = "mesh";
                     sceneObject.setName(nodeName + "-" + meshId);
