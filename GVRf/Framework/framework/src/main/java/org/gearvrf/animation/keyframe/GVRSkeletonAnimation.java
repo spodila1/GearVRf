@@ -52,6 +52,7 @@ import java.util.List;
 public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     protected String mName;
     private GVRSkeleton mSkeleton = null;
+    private GVRPose mPose = null;
 
     /**
      * List of animation channels for each of the
@@ -111,6 +112,23 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
             mSkeleton.setBoneOptions(boneId, GVRSkeleton.BONE_ANIMATE);
             Log.d("BONE", "Adding animation channel %d %s ", boneId, boneName);
         }
+    }
+    /**
+     * Set the pose this animation updates.
+     * <p>
+     * Calling this function will cause the animator to
+     * stop updating the skeleton. It will just update
+     * the pose provided. This is useful if you want the
+     * result of the animator to use in subsequent operations.
+     * <p>
+     * Setting the pose to null restores the normal
+     * operation of the animator - updating the current
+     * pose of the target skeleton.
+     * @param pose  {@link GVRPose} the animator updates
+     */
+    public void setPose(GVRPose pose)
+    {
+        mPose = pose;
     }
 
     /**
@@ -217,6 +235,11 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public void animate(float timeInSec)
     {
+        if (mPose != null)
+        {
+            computePose(timeInSec, mPose);
+            return;
+        }
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
         computePose(timeInSec,pose);

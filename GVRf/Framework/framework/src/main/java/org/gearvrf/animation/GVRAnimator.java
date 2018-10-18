@@ -271,9 +271,21 @@ public class GVRAnimator extends GVRBehavior
             return;
         }
         mIsRunning = true;
+        int i=0;
         for (GVRAnimation anim : mAnimations)
         {
+
+            if(i==2||i==3)
+            {
+                anim.setStartTime(4.833328f);
+                anim.setOffset(1);
+            }
+            else if(i==4||i==5)
+            {
+                anim.setStartTime(4.833328f);
+            }
             anim.start(getGVRContext().getAnimationEngine());
+            i++;
         }
     }
 

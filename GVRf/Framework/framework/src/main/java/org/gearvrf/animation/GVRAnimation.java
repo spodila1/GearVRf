@@ -109,6 +109,8 @@ public abstract class GVRAnimation {
     protected float animationOffset = 0;
     protected float animationSpeed = 1;
     protected GVROnFinish mOnFinish = null;
+    protected float mCurrentTime = 0;
+    protected float mStartTime =0;
 
     /**
      * This is derived from {@link #mOnFinish}. Doing the {@code instanceof}
@@ -284,6 +286,11 @@ public abstract class GVRAnimation {
         mDuration = end-start;
         return this;
     }
+    public GVRAnimation setStartTime(float startTime)
+    {
+        mStartTime = startTime;
+        return this;
+    }
     /**
      * Set the on-finish callback.
      * 
@@ -355,7 +362,7 @@ public abstract class GVRAnimation {
 
     public void onStart()
     {
-       // mCurrentTime = 0;
+        mCurrentTime = 0;
         if (sDebug)
         {
             Log.d("ANIMATION", "%s started", getClass().getSimpleName());
@@ -390,12 +397,12 @@ public abstract class GVRAnimation {
      */
 
     final boolean onDrawFrame(float frameTime) {
-        /*
+
         if (mCurrentTime < mStartTime)
         {
-            mCurrentTime =+ frameTime;
+            mCurrentTime += frameTime;
             return true;
-        }*/
+        }
         final int previousCycleCount = (int) (mElapsedTime / mDuration);
 
         mElapsedTime += (frameTime*animationSpeed);
