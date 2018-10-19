@@ -15,6 +15,7 @@
 
 package org.gearvrf.mixedreality;
 
+import org.gearvrf.GVRBehavior;
 import org.gearvrf.GVRContext;
 import org.gearvrf.GVRSceneObject;
 
@@ -23,33 +24,20 @@ import java.nio.FloatBuffer;
 /**
  * Represents the  current best knowledge of a real-world planar surface.
  */
-public abstract class GVRPlane extends GVRSceneObject {
-    protected Type mType;
+public abstract class GVRPlane extends GVRBehavior
+{
+    static private long TYPE_PLANE = newComponentType(GVRPlane.class);
     protected GVRTrackingState mTrackingState;
     protected GVRPlane mParentPlane;
-    protected GVRSceneObject mSceneObject;
+    protected PlaneType mPlaneType;
 
-    protected GVRPlane(GVRContext gvrContext) {
+    protected GVRPlane(GVRContext gvrContext)
+    {
         super(gvrContext);
+        mType = getComponentType();
     }
 
-    /**
-     * Set a scene object to represent the plane
-     *
-     * @param obj
-     */
-    public void setSceneObject(GVRSceneObject obj) {
-        mSceneObject = obj;
-        addChildObject(mSceneObject);
-    }
-
-    /**
-     *
-     * @return The scene object that represents the plane
-     */
-    public GVRSceneObject getSceneObject() {
-        return this.mSceneObject;
-    }
+    static public long getComponentType() { return TYPE_PLANE; }
 
     /**
      *
@@ -63,11 +51,10 @@ public abstract class GVRPlane extends GVRSceneObject {
      */
     public abstract float[] getCenterPose();
 
-    /**
-     *
-     * @return The plane type
-     */
-    public abstract Type getPlaneType();
+    public PlaneType getPlaneType()
+    {
+        return mPlaneType;
+    }
 
     /**
      *
@@ -91,12 +78,16 @@ public abstract class GVRPlane extends GVRSceneObject {
      *
      * @return The parent plane
      */
-    public abstract GVRPlane getParentPlane();
+    public GVRPlane getParentPlane()
+    {
+        return mParentPlane;
+    }
 
     /**
      * Describes the possible types of planes
      */
-    public enum Type {
+    public enum PlaneType
+    {
         HORIZONTAL_DOWNWARD_FACING,
         HORIZONTAL_UPWARD_FACING,
         VERTICAL

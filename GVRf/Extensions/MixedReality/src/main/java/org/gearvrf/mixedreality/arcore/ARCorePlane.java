@@ -18,8 +18,11 @@ package org.gearvrf.mixedreality.arcore;
 import com.google.ar.core.Plane;
 
 import org.gearvrf.GVRContext;
+import org.gearvrf.GVRSceneObject;
+import org.gearvrf.GVRTransform;
 import org.gearvrf.mixedreality.GVRPlane;
 import org.gearvrf.mixedreality.GVRTrackingState;
+import org.gearvrf.utility.Log;
 
 import java.nio.FloatBuffer;
 
@@ -34,13 +37,13 @@ class ARCorePlane extends GVRPlane {
         mARPlane = plane;
 
         if (mARPlane.getType() == Plane.Type.HORIZONTAL_DOWNWARD_FACING) {
-            mType = Type.HORIZONTAL_DOWNWARD_FACING;
+            mPlaneType = PlaneType.HORIZONTAL_DOWNWARD_FACING;
         }
         else if (mARPlane.getType() == Plane.Type.HORIZONTAL_UPWARD_FACING) {
-            mType = Type.HORIZONTAL_UPWARD_FACING;
+            mPlaneType = PlaneType.HORIZONTAL_UPWARD_FACING;
         }
         else {
-            mType = Type.VERTICAL;
+            mPlaneType = PlaneType.VERTICAL;
         }
     }
 
@@ -75,11 +78,6 @@ class ARCorePlane extends GVRPlane {
     }
 
     @Override
-    public Type getPlaneType() {
-        return mType;
-    }
-
-    @Override
     public float getWidth() {
         return mARPlane.getExtentX();
     }
@@ -108,14 +106,13 @@ class ARCorePlane extends GVRPlane {
      */
     protected void update(float[] viewmtx, float[] gvrmatrix, float scale) {
         // Updates only when the plane is in the scene
-        if (getParent() == null || !isEnabled()) {
-            return;
-        }
 
-        convertFromARtoVRSpace(viewmtx, gvrmatrix, scale);
+        GVRSceneObject owner = getOwnerObject();
 
-        if (mSceneObject != null) {
-            mSceneObject.getTransform().setScale(mARPlane.getExtentX() * 0.95f,
+        if (isEnabled() && (owner != null) && owner.isEnabled())
+        {
+            convertFromARtoVRSpace(viewmtx, gvrmatrix, scale);
+            owner.getTransform().setScale(mARPlane.getExtentX() * 0.95f,
                     mARPlane.getExtentZ() * 0.95f, 1.0f);
         }
     }

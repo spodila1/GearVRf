@@ -203,7 +203,7 @@ public class ARCoreHelper {
         mArAnchors.add(arCoreAnchor);
 
         if (sceneObject != null) {
-            arCoreAnchor.attachSceneObject(sceneObject);
+            sceneObject.attachComponent(arCoreAnchor);
         }
 
         return arCoreAnchor;
@@ -219,7 +219,7 @@ public class ARCoreHelper {
     public void removeAnchor(ARCoreAnchor anchor) {
         anchor.getAnchorAR().detach();
         mArAnchors.remove(anchor);
-        mGvrScene.removeSceneObject(anchor);
+        mGvrScene.removeSceneObject(anchor.getOwnerObject());
     }
 
     public GVRHitResult hitTest(List<HitResult> hitResult) {

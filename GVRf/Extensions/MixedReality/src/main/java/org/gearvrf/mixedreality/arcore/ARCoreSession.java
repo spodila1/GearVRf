@@ -111,6 +111,9 @@ public class ARCoreSession extends MRCommon {
     }
 
     @Override
+    public float getARToVRScale() { return AR2VR_SCALE; }
+
+    @Override
     protected void onResume() {
 
         Log.d(TAG, "onResumeAR");
@@ -450,10 +453,7 @@ public class ARCoreSession extends MRCommon {
     }
 
     @Override
-    protected GVRHitResult onHitTest(GVRSceneObject sceneObj, GVRPicker.GVRPickedObject collision) {
-        if (sceneObj != mARPassThroughObject)
-            return null;
-
+    protected GVRHitResult onHitTest(GVRPicker.GVRPickedObject collision) {
         Vector2f tapPosition = convertToDisplayGeometrySpace(collision.getHitLocation());
         List<HitResult> hitResult = arFrame.hitTest(tapPosition.x, tapPosition.y);
 

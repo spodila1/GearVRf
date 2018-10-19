@@ -39,6 +39,12 @@ public interface IMRCommon {
 
     /**
      *
+     * @return the scale factor from AR to VR
+     */
+    float getARToVRScale();
+
+    /**
+     *
      * @return The passthrough object
      */
     GVRSceneObject getPassThroughObject();
@@ -127,11 +133,10 @@ public interface IMRCommon {
 
     /**
      *
-     * @param sceneObj
-     * @param collision
+     * @param pick    collision returned from GVRPicker
      * @return
      */
-    GVRHitResult hitTest(GVRSceneObject sceneObj, GVRPicker.GVRPickedObject collision);
+    GVRHitResult hitTest(GVRPicker.GVRPickedObject pick);
 
     /**
      *
