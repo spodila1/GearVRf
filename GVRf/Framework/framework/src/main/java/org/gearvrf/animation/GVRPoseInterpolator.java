@@ -147,6 +147,10 @@ public class GVRPoseInterpolator extends GVRAnimation
         posData[0]=0;
         rotData[0]=0;
         sclData[0]=0;
+        posIData = new float[3];
+        sclIData = new float[3];
+        rotIData = new float[4];
+        mat = new Matrix4f();
         posBlend = new float[skelAnimOne.getSkeleton().getNumBones()][6];
         rotBlend = new float[skelAnimOne.getSkeleton().getNumBones()][8];
         sclBlend = new float[skelAnimOne.getSkeleton().getNumBones()][6];
@@ -366,8 +370,10 @@ public class GVRPoseInterpolator extends GVRAnimation
     }
 
     public void animate(float timer) {
+        skelAnimOne.setPose(skelAnimOne.getSkeleton().getPose());
+        skelAnimTwo.setPose(skelAnimTwo.getSkeleton().getPose());
 
-        /*
+/*
         initialPose = pSkeleton.getPose();
 
         for(int  i= 0;i < pSkeleton.getNumBones();i++)
@@ -394,12 +400,14 @@ public class GVRPoseInterpolator extends GVRAnimation
         pSkeleton.poseToBones();
         pSkeleton.updateBonePose();
         pSkeleton.updateSkinPose();
+
 */
+
             initialPose = dskeleton.getPose();
 
             Matrix4f temp = new Matrix4f();
             GVRSkeleton skel = dskeleton;
-           // Log.i("printpositions","print "+check);
+            Log.i("printpositions","print "+check);
             posData[4]=timer;
             sclData[4]=timer;
             rotData[5]=timer;
@@ -437,6 +445,9 @@ public class GVRPoseInterpolator extends GVRAnimation
                 mPosInterpolator = new GVRFloatAnimation(posData, 4);
                 mRotInterpolator = new GVRQuatAnimation(rotData);
                 mSclInterpolator = new GVRFloatAnimation(sclData, 4);
+                mPosInterpolator.animate(timer,posIData);
+                mRotInterpolator.animate(timer,rotIData);
+                mSclInterpolator.animate(timer,sclIData);
                 mat.translationRotateScale(posIData[0], posIData[1], posIData[2],rotIData[0], rotIData[1], rotIData[2], rotIData[3],sclIData[0], sclIData[1], sclIData[2]);
                 Log.i("printpositions","print "+posIData[0]+" "+posIData[1]+" "+posIData[2]);
                 initialPose.setLocalMatrix(i, mat);
@@ -464,7 +475,7 @@ public class GVRPoseInterpolator extends GVRAnimation
            posData[0]=timer;
            rotData[0]=timer;
            sclData[0] = timer;
-
+        Log.i("isitprint","fdafcv333333 ");
         check++;
 
 

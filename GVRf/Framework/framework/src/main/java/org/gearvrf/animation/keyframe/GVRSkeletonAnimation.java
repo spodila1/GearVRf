@@ -237,12 +237,14 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     {
         if (mPose != null)
         {
+            Log.i("isitprint","fdafcv ");
             computePose(timeInSec, mPose);
             return;
         }
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
         computePose(timeInSec,pose);
+        Log.i("isitprint","fdafcv222222 ");
         skel.poseToBones();
         skel.updateBonePose();
         skel.updateSkinPose();

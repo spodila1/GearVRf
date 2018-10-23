@@ -278,7 +278,7 @@ public class GVRAnimator extends GVRBehavior
             if(i==2||i==3)
             {
                 anim.setStartTime(4.833328f);
-                anim.setOffset(1);
+               //anim.setOffset(1);
             }
             else if(i==4||i==5)
             {
