@@ -621,7 +621,6 @@ public class GVRPicker extends GVRBehavior implements IEventReceiver {
             {
                 propagateOnInside(collision);
                 if (prevHit.touched && !mTouched)
-
                 {
                     mPickListChanged = true;
                     propagateOnNoTouch(collision);

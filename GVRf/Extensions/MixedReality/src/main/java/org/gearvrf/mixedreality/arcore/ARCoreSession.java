@@ -111,6 +111,9 @@ public class ARCoreSession extends MRCommon {
     }
 
     @Override
+    public float getARToVRScale() { return AR2VR_SCALE; }
+
+    @Override
     protected void onResume() {
 
         Log.d(TAG, "onResumeAR");
@@ -329,12 +332,15 @@ public class ARCoreSession extends MRCommon {
         arCamera.getProjectionMatrix(m, 0, near, far);
         Matrix4f projmtx = new Matrix4f();
         projmtx.set(m);
-
+        //
+        // TODO: This size works for monoscopic. For VR we need half the size.
+        // This code should detect whether in mono or VR and set the size
+        // appropriately.
+        //
         float aspectRatio = projmtx.m11()/projmtx.m00();
         float arCamFOV = projmtx.perspectiveFov();
-
         float quadDistance = PASSTHROUGH_DISTANCE;
-        float quadHeight = new Float(2 * quadDistance * Math.tan(arCamFOV * 0.5f));
+        float quadHeight = new Float(4 * quadDistance * Math.tan(arCamFOV * 0.5f));
         float quadWidth = quadHeight * aspectRatio;
 
         android.util.Log.d(TAG, "ARCore configured to: passthrough[w: "
@@ -450,10 +456,7 @@ public class ARCoreSession extends MRCommon {
     }
 
     @Override
-    protected GVRHitResult onHitTest(GVRSceneObject sceneObj, GVRPicker.GVRPickedObject collision) {
-        if (sceneObj != mARPassThroughObject)
-            return null;
-
+    protected GVRHitResult onHitTest(GVRPicker.GVRPickedObject collision) {
         Vector2f tapPosition = convertToDisplayGeometrySpace(collision.getHitLocation());
         List<HitResult> hitResult = arFrame.hitTest(tapPosition.x, tapPosition.y);
 

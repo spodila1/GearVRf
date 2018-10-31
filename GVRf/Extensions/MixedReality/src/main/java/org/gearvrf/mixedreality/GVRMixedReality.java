@@ -25,6 +25,7 @@ import org.gearvrf.GVRScene;
 import org.gearvrf.GVRSceneObject;
 import org.gearvrf.IActivityEvents;
 import org.gearvrf.mixedreality.arcore.ARCoreSession;
+import org.joml.Vector3f;
 
 import java.util.ArrayList;
 
@@ -32,17 +33,21 @@ import java.util.ArrayList;
  * Component to enable AR functionalities on GVRf.
  */
 public class GVRMixedReality extends GVRBehavior implements IMRCommon {
+    static private long TYPE_MIXEDREALITY = newComponentType(GVRMixedReality.class);
     private final IActivityEvents mActivityEventsHandler;
     private final MRCommon mSession;
     private SessionState mState;
+    private Vector3f mTempVec1 = new Vector3f();
+    private Vector3f mTempVec2 = new Vector3f();
 
     /**
      * Create a instace of GVRMixedReality component.
      *
      * @param gvrContext
      */
-    public GVRMixedReality(final GVRContext gvrContext) {
-        this(gvrContext, false, null);
+    public GVRMixedReality(final GVRContext gvrContext)
+    {
+        this(gvrContext, false);
     }
 
     /**
@@ -51,43 +56,40 @@ public class GVRMixedReality extends GVRBehavior implements IMRCommon {
      * @param gvrContext
      * @param enableCloudAnchor
      */
-    public GVRMixedReality(final GVRContext gvrContext, boolean enableCloudAnchor) {
-        this(gvrContext, enableCloudAnchor, null);
+    public GVRMixedReality(final GVRContext gvrContext, boolean enableCloudAnchor)
+    {
+        this(gvrContext.getMainScene(), enableCloudAnchor);
     }
 
     /**
      * Create a instance of GVRMixedReality component and add it to the specified scene.
      *
-     * @param gvrContext
      * @param scene
      */
-    public GVRMixedReality(final GVRContext gvrContext, GVRScene scene) {
-        this(gvrContext, false, scene);
+    public GVRMixedReality(GVRScene scene)
+    {
+        this(scene, false);
     }
 
     /**
      * Default GVRMixedReality constructor. Create a instace of GVRMixedReality component, set
      * the use of cloud anchors and add it to the specified scened.
      *
-     * @param gvrContext
-     * @param enableCloudAnchor
      * @param scene
      */
-    public GVRMixedReality(GVRContext gvrContext, boolean enableCloudAnchor, GVRScene scene) {
-        super(gvrContext, 0);
-
-
-        if (scene == null) {
-            scene = gvrContext.getMainScene();
-        }
-
+    public GVRMixedReality(GVRScene scene, boolean enableCloudAnchor)
+    {
+        super(scene.getGVRContext());
+        mType = getComponentType();
         mActivityEventsHandler = new ActivityEventsHandler();
-        mSession = new ARCoreSession(gvrContext, enableCloudAnchor);
+        mSession = new ARCoreSession(scene.getGVRContext(), enableCloudAnchor);
         mState = SessionState.ON_PAUSE;
-
         scene.getMainCameraRig().getOwnerObject().attachComponent(this);
     }
 
+    static public long getComponentType() { return TYPE_MIXEDREALITY; }
+
+    public float getARToVRScale() { return mSession.getARToVRScale(); }
     @Override
     public void resume() {
         if (mState == SessionState.ON_RESUME) {
@@ -186,11 +188,26 @@ public class GVRMixedReality extends GVRBehavior implements IMRCommon {
     }
 
     @Override
-    public GVRHitResult hitTest(GVRSceneObject sceneObj, GVRPicker.GVRPickedObject collision) {
-        if (mState == SessionState.ON_PAUSE) {
+    public GVRHitResult hitTest(GVRPicker.GVRPickedObject collision)
+    {
+        if (mState == SessionState.ON_PAUSE)
+        {
             throw new UnsupportedOperationException("Session is not resumed");
         }
-        return mSession.hitTest(sceneObj, collision);
+        collision.picker.getWorldPickRay(mTempVec1, mTempVec2);
+        if (collision.hitObject != getPassThroughObject())
+        {
+            mTempVec2.set(collision.hitLocation[0],
+                          collision.hitLocation[1],
+                          collision.hitLocation[2]);
+        }
+        GVRPicker.GVRPickedObject hit = GVRPicker.pickSceneObject(getPassThroughObject(), mTempVec1.x, mTempVec1.y, mTempVec1.z,
+                                                                  mTempVec2.x, mTempVec2.y, mTempVec2.z);
+        if (hit == null)
+        {
+            return null;
+        }
+        return mSession.hitTest(hit);
     }
 
     @Override
