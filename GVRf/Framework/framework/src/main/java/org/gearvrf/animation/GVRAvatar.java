@@ -149,15 +149,24 @@ public class GVRAvatar extends GVRBehavior implements IEventReceiver
             {
                 case 2:
                 mAvatarRoot.getGVRContext().getEventManager().sendEvent(GVRAvatar.this,
-                        IAvatarEvents.class, "onAnimationFinished", GVRAvatar.this, animator, animation);
+                                                                        IAvatarEvents.class,
+                                                                        "onAnimationFinished",
+                                                                        GVRAvatar.this,
+                                                                        animator,
+                                                                        animation);
                 mAvatarRoot.getGVRContext().getEventManager().sendEvent(GVRAvatar.this,
-                        IAvatarEvents.class, "onAnimationStarted", GVRAvatar.this, animator);
-
+                                                                        IAvatarEvents.class,
+                                                                        "onAnimationStarted",
+                                                                        GVRAvatar.this,
+                                                                        animator);
                 break;
 
                 case 1:
                 mAvatarRoot.getGVRContext().getEventManager().sendEvent(GVRAvatar.this,
-                        IAvatarEvents.class, "onAnimationStarted", GVRAvatar.this, animator);
+                                                                        IAvatarEvents.class,
+                                                                        "onAnimationStarted",
+                                                                        GVRAvatar.this,
+                                                                        animator);
                 if (mRepeatMode == GVRRepeatMode.REPEATED)
                 {
                     startAll(mRepeatMode);
@@ -260,8 +269,6 @@ public class GVRAvatar extends GVRBehavior implements IEventReceiver
                 else
                 {
                     skelAnim = importer.importAnimation(animResource, mSkeleton);
-                    GVRSkeleton skl = skelAnim.getSkeleton();
-
                     animator.addAnimation(skelAnim);
                 }
                 addAnimation(animator);
@@ -418,8 +425,11 @@ public class GVRAvatar extends GVRBehavior implements IEventReceiver
         }
         mIsRunning = true;
         animator.start(mOnFinish);
-        mAvatarRoot.getGVRContext().getEventManager().sendEvent(GVRAvatar.this, IAvatarEvents.class,
-                "onAnimationStarted", this, animator);
+        mAvatarRoot.getGVRContext().getEventManager().sendEvent(GVRAvatar.this,
+                                                                IAvatarEvents.class,
+                                                                "onAnimationStarted",
+                                                                GVRAvatar.this,
+                                                                animator);
     }
 
     /**
