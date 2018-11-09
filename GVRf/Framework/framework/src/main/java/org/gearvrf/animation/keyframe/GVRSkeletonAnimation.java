@@ -217,14 +217,28 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public void animate(float timeInSec)
     {
+        if (mPose != null)
+        {
+            //  computePose(timeInSec, mPose);
+            Log.i("printInsidePose","animate");
+            return;
+        }
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
         computePose(timeInSec,pose);
+        if(timeInSec>this.getDuration()-3&&this.getName()=="first")
+        {
+            mPose = pose;
+        }
+        if(this.getName()=="second")
+        {
+
+        }
+        Log.i("printInsidePose","animateOut"+this.getName());
         skel.poseToBones();
         skel.updateBonePose();
         skel.updateSkinPose();
     }
-
     public GVRPose computePose(float timeInSec, GVRPose pose)
     {
         Matrix4f temp = new Matrix4f();
@@ -249,8 +263,10 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
             }
         }
 
-     return pose;
+        return pose;
     }
+
+}
     @Override
     public void prettyPrint(StringBuffer sb, int indent) {
         sb.append(Log.getSpaces(indent));
