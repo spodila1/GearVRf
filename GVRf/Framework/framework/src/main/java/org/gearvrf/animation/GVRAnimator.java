@@ -47,6 +47,7 @@ public class GVRAnimator extends GVRBehavior
     protected boolean mAutoStart;
     protected boolean mIsRunning;
     protected String mName;
+    int i=0;
 
     /**
      * Make an instance of the GVRAnimator component.
@@ -296,7 +297,28 @@ public class GVRAnimator extends GVRBehavior
         mIsRunning = true;
         for (GVRAnimation anim : mAnimations)
         {
-            anim.start(getGVRContext().getAnimationEngine());
+            //5.833328
+            //3.2999969
+            if(i==4||i==5)
+            {
+
+              anim.setStartTime(5.833328f);
+              anim.setOffset(1.0f);
+              anim.start(getGVRContext().getAnimationEngine());
+            }
+            else if(i==2||i==3)
+            {
+                //anim.setSpeed(1.8f);
+                anim.setStartTime(4.833328f);
+                anim.start(getGVRContext().getAnimationEngine());
+            }
+            else
+            {
+                anim.start(getGVRContext().getAnimationEngine());
+            }
+
+            i++;
+            Log.i("animationDureation","print"+anim.getDuration());
         }
     }
 

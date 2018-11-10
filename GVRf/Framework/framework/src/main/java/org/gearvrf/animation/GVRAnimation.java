@@ -108,6 +108,9 @@ public abstract class GVRAnimation {
     protected float animationOffset = 0;
     protected float animationSpeed = 1;
     protected GVROnFinish mOnFinish = null;
+    protected float mCurrentTime = 0;
+    protected float mStartTime = 0;
+    protected String mName = null;
 
     /**
      * This is derived from {@link #mOnFinish}. Doing the {@code instanceof}
@@ -313,6 +316,21 @@ public abstract class GVRAnimation {
         return this;
     }
     /**
+     * Get the name of this animator.
+     * <p>
+     * The name is optional and may be set with {@link #setName(String) }
+     * @returns string with name of animator, may be null
+     * @see #setName(String)
+     */
+    public String getName() { return mName; }
+
+    /**
+     * Set the name of this animator.
+     * @param name string with name of animator, may be null
+     * @see #getName()
+     */
+    public void setName(String name) { mName = name; }
+    /**
      * Set the on-finish callback.
      * 
      * The basic {@link GVROnFinish} callback will notify you when the animation
@@ -427,7 +445,7 @@ public abstract class GVRAnimation {
         final int previousCycleCount = (int) (mElapsedTime / mDuration);
 
         mElapsedTime += (frameTime*animationSpeed);
-
+        Log.i("timeincree","ment"+mElapsedTime+this.getName());
         final int currentCycleCount = (int) (mElapsedTime / mDuration);
         final float cycleTime = (mElapsedTime % mDuration)+animationOffset;
 

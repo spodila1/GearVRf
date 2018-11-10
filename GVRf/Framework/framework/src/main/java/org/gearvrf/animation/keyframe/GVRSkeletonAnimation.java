@@ -52,6 +52,9 @@ import java.util.List;
 public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     protected String mName;
     private GVRSkeleton mSkeleton = null;
+    private GVRPose mPose = null;
+    static int order = -1;
+    static boolean flag = false;
 
     /**
      * List of animation channels for each of the
@@ -68,8 +71,11 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public GVRSkeletonAnimation(String name, GVRSceneObject target, float duration)
     {
+
     	super(target, duration);
         mName = name;
+        flag = false;
+       // order++;
     }
 
     /**
@@ -89,6 +95,8 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
             mSkeleton.setBoneOptions(boneId, GVRSkeleton.BONE_ANIMATE);
         }
         mBoneChannels = new GVRAnimationChannel[mSkeleton.getNumBones()];
+        flag= false;
+        order++;
     }
 
     /**
@@ -144,7 +152,25 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
         }
         return null;
     }
+    /**
+     * Set the pose this animation updates.
+     * <p>
+     * Calling this function will cause the animator to
+     * stop updating the skeleton. It will just update
+     * the pose provided. This is useful if you want the
+     * result of the animator to use in subsequent operations.
+     * <p>
+     * Setting the pose to null restores the normal
+     * operation of the animator - updating the current
+     * pose of the target skeleton.
+     * @param pose  {@link GVRPose} the animator updates
+     */
+    public void setPose(GVRPose pose)
+    {
+        mPose = pose;
+        flag = true;
 
+    }
     /**
      * Create a skeleton from the target hierarchy which has the given bones.
      * <p>
@@ -217,24 +243,34 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public void animate(float timeInSec)
     {
+       if(timeInSec>=4.8f)
+        {
+           setPose(getSkeleton().getPose());
+        }
+        if(this.getName()=="seco")
+        {
+            setPose(getSkeleton().getPose());
+        }
+        if(this.getName()=="interp"&&timeInSec>=5.8)
+        {
+            setPose(getSkeleton().getPose());
+        }
+        if(this.getName()=="seco"&&timeInSec>=1f)
+        {
+            mPose = null;
+        }
         if (mPose != null)
         {
-            //  computePose(timeInSec, mPose);
-            Log.i("printInsidePose","animate");
-            return;
+           return;
         }
+
+
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
         computePose(timeInSec,pose);
-        if(timeInSec>this.getDuration()-3&&this.getName()=="first")
-        {
-            mPose = pose;
+        if(this.getName()=="seco"&&timeInSec>1) {
+            Log.i("playani","ani");
         }
-        if(this.getName()=="second")
-        {
-
-        }
-        Log.i("printInsidePose","animateOut"+this.getName());
         skel.poseToBones();
         skel.updateBonePose();
         skel.updateSkinPose();
@@ -266,7 +302,6 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
         return pose;
     }
 
-}
     @Override
     public void prettyPrint(StringBuffer sb, int indent) {
         sb.append(Log.getSpaces(indent));
