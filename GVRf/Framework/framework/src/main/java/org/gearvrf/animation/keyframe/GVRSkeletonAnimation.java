@@ -55,6 +55,7 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     private GVRPose mPose = null;
     static int order = -1;
     static boolean flag = false;
+    private float blendFactor=0;
 
     /**
      * List of animation channels for each of the
@@ -171,6 +172,10 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
         flag = true;
 
     }
+    public void setblendFactor(float blendFac)
+    {
+        blendFactor=blendFac;
+    }
     /**
      * Create a skeleton from the target hierarchy which has the given bones.
      * <p>
@@ -243,20 +248,9 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public void animate(float timeInSec)
     {
-       if(timeInSec>=4.8f)
+        if(timeInSec>=blendFactor)
         {
-           setPose(getSkeleton().getPose());
-        }
-        if(this.getName()=="seco")
-        {
-            setPose(getSkeleton().getPose());
-        }
-        if(this.getName()=="interp"&&timeInSec>=5.8)
-        {
-            setPose(getSkeleton().getPose());
-        }
-        if(this.getName()=="seco"&&timeInSec>=1f)
-        {
+            Log.i("blendFactor","print "+blendFactor);
             mPose = null;
         }
         if (mPose != null)
@@ -264,13 +258,9 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
            return;
         }
 
-
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
         computePose(timeInSec,pose);
-        if(this.getName()=="seco"&&timeInSec>1) {
-            Log.i("playani","ani");
-        }
         skel.poseToBones();
         skel.updateBonePose();
         skel.updateSkinPose();

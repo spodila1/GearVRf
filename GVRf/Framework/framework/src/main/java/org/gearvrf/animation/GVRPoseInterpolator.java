@@ -209,11 +209,6 @@ public class GVRPoseInterpolator extends GVRAnimation
         pDuration = duration;
 
 
-
-
-
-
-
     }
 
     public void poseInterpolate(int index)

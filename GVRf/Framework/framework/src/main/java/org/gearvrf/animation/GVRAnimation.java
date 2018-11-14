@@ -445,7 +445,6 @@ public abstract class GVRAnimation {
         final int previousCycleCount = (int) (mElapsedTime / mDuration);
 
         mElapsedTime += (frameTime*animationSpeed);
-        Log.i("timeincree","ment"+mElapsedTime+this.getName());
         final int currentCycleCount = (int) (mElapsedTime / mDuration);
         final float cycleTime = (mElapsedTime % mDuration)+animationOffset;
 

@@ -19,6 +19,7 @@ package org.gearvrf.animation;
 import org.gearvrf.GVRBehavior;
 import org.gearvrf.GVRContext;
 import org.gearvrf.GVRSceneObject;
+import org.gearvrf.animation.keyframe.GVRSkeletonAnimation;
 import org.gearvrf.utility.Log;
 
 import java.util.ArrayList;
@@ -48,6 +49,10 @@ public class GVRAnimator extends GVRBehavior
     protected boolean mIsRunning;
     protected String mName;
     int i=0;
+    GVRSceneObject animModel= null;
+    GVRAvatar animAvatar = null;
+    private String          mBoneMap;
+    private int numberofInterp = 0;
 
     /**
      * Make an instance of the GVRAnimator component.
@@ -297,29 +302,80 @@ public class GVRAnimator extends GVRBehavior
         mIsRunning = true;
         for (GVRAnimation anim : mAnimations)
         {
-            //5.833328
-            //3.2999969
-            if(i==4||i==5)
-            {
+            anim.start(getGVRContext().getAnimationEngine());
+        }
+    }
 
-              anim.setStartTime(5.833328f);
-              anim.setOffset(1.0f);
-              anim.start(getGVRContext().getAnimationEngine());
-            }
-            else if(i==2||i==3)
+    public void start(float blendFactor)
+    {
+        if (mAnimations.size() == 0)
+        {
+            return;
+        }
+        mIsRunning = true;
+        int tempAnimSze = mAnimations.size();
+        for(int i=0;i<(tempAnimSze)-2;i=i+2)
+        {
+            GVRSkeletonAnimation skelOne = (GVRSkeletonAnimation)mAnimations.get(i);
+            Log.i("warningcoming","test "+mAnimations.get(i+2).getClass().getName()+i+" "+((tempAnimSze)-2));
+            GVRSkeletonAnimation skelTwo = (GVRSkeletonAnimation)mAnimations.get(i+2);
+            skelOne.setblendFactor(blendFactor);
+            skelTwo.setblendFactor(blendFactor);
+
+            GVRPoseInterpolator blendAnim = new GVRPoseInterpolator(animModel, blendFactor, skelOne, skelTwo, skelOne.getSkeleton());
+            GVRPoseMapper retargeterP = new GVRPoseMapper(animAvatar.getSkeleton(), skelOne.getSkeleton(), blendFactor);
+            retargeterP.setBoneMap(mBoneMap);
+
+            mAnimations.add(blendAnim);
+            mAnimations.add(retargeterP);
+            numberofInterp++;
+
+        }
+
+        int animSize = mAnimations.size();
+        int skelAnimSize = animSize-(numberofInterp*2);
+        float startTime =0;
+
+        for(int j=0;j<skelAnimSize;j=j+2)
+        {
+
+            if(j==0)
             {
-                //anim.setSpeed(1.8f);
-                anim.setStartTime(4.833328f);
-                anim.start(getGVRContext().getAnimationEngine());
+                mAnimations.get(j).start(getGVRContext().getAnimationEngine());
+                mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
+
             }
             else
             {
-                anim.start(getGVRContext().getAnimationEngine());
-            }
 
-            i++;
-            Log.i("animationDureation","print"+anim.getDuration());
+                startTime = mAnimations.get(j-2).getDuration()+startTime;
+                Log.i("animationcomplete","time "+startTime);
+                mAnimations.get(j).setStartTime(startTime);
+                mAnimations.get(j+1).setStartTime(startTime);
+                mAnimations.get(j).setOffset(blendFactor);
+                mAnimations.get(j+1).setOffset(blendFactor);
+                mAnimations.get(j).start(getGVRContext().getAnimationEngine());
+                mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
+                //blendFactor = blendFactor+startTime;
+            }
         }
+        float startTimeInter = 0;
+        for(int k=0;k<(numberofInterp*2); k=k+2)
+        {
+            startTimeInter  = mAnimations.get(k).getDuration()-blendFactor+startTimeInter;
+            mAnimations.get(skelAnimSize+k).setStartTime(startTimeInter);
+            mAnimations.get(skelAnimSize+k).start(getGVRContext().getAnimationEngine());
+            mAnimations.get((skelAnimSize)+1+k).setStartTime(startTimeInter);
+            mAnimations.get((skelAnimSize)+1+k).start(getGVRContext().getAnimationEngine());
+            startTimeInter=startTimeInter+blendFactor;
+        }
+    }
+
+    public void sendAvatar(GVRSceneObject model, GVRAvatar avatar, String bonemap)
+    {
+        animModel = model;
+        animAvatar = avatar;
+        mBoneMap = bonemap;
     }
 
     /**
