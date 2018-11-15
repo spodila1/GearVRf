@@ -1,4 +1,3 @@
-
 /* Copyright 2018 Samsung Electronics Co., LTD
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -319,8 +318,6 @@ public class GVRAnimator extends GVRBehavior
             GVRSkeletonAnimation skelOne = (GVRSkeletonAnimation)mAnimations.get(i);
             Log.i("warningcoming","test "+mAnimations.get(i+2).getClass().getName()+i+" "+((tempAnimSze)-2));
             GVRSkeletonAnimation skelTwo = (GVRSkeletonAnimation)mAnimations.get(i+2);
-            skelOne.setblendFactor(blendFactor);
-            skelTwo.setblendFactor(blendFactor);
 
             GVRPoseInterpolator blendAnim = new GVRPoseInterpolator(animModel, blendFactor, skelOne, skelTwo, skelOne.getSkeleton());
             GVRPoseMapper retargeterP = new GVRPoseMapper(animAvatar.getSkeleton(), skelOne.getSkeleton(), blendFactor);
@@ -350,10 +347,10 @@ public class GVRAnimator extends GVRBehavior
 
                 startTime = mAnimations.get(j-2).getDuration()+startTime;
                 Log.i("animationcomplete","time "+startTime);
-                mAnimations.get(j).setStartTime(startTime);
-                mAnimations.get(j+1).setStartTime(startTime);
-                mAnimations.get(j).setOffset(blendFactor);
-                mAnimations.get(j+1).setOffset(blendFactor);
+                mAnimations.get(j).setStartTime(startTime-blendFactor);
+                mAnimations.get(j+1).setStartTime(startTime-blendFactor);
+               // mAnimations.get(j).setOffset(blendFactor);
+              //  mAnimations.get(j+1).setOffset(blendFactor);
                 mAnimations.get(j).start(getGVRContext().getAnimationEngine());
                 mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
                 //blendFactor = blendFactor+startTime;

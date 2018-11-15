@@ -73,10 +73,10 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     public GVRSkeletonAnimation(String name, GVRSceneObject target, float duration)
     {
 
-    	super(target, duration);
+        super(target, duration);
         mName = name;
         flag = false;
-       // order++;
+        // order++;
     }
 
     /**
@@ -230,7 +230,7 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     {
         mTarget = target;
         if ((mSkeleton != null) &&
-            target.getComponent(GVRSkeleton.getComponentType()) == null)
+                target.getComponent(GVRSkeleton.getComponentType()) == null)
         {
             target.attachComponent(mSkeleton);
         }
@@ -248,14 +248,13 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public void animate(float timeInSec)
     {
-        if(timeInSec>=blendFactor)
+        if(timeInSec>blendFactor)
         {
-            Log.i("blendFactor","print "+blendFactor);
             mPose = null;
         }
         if (mPose != null)
         {
-           return;
+            return;
         }
 
         GVRSkeleton skel = getSkeleton();

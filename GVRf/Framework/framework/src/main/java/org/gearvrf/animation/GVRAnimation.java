@@ -439,10 +439,11 @@ public abstract class GVRAnimation {
 
         if (mCurrentTime < mStartTime)
         {
+
             mCurrentTime += frameTime;
             return true;
         }
-        final int previousCycleCount = (int) (mElapsedTime / mDuration);
+       final int previousCycleCount = (int) (mElapsedTime / mDuration);
 
         mElapsedTime += (frameTime*animationSpeed);
         final int currentCycleCount = (int) (mElapsedTime / mDuration);
