@@ -332,39 +332,50 @@ public class GVRAnimator extends GVRBehavior
         int animSize = mAnimations.size();
         int skelAnimSize = animSize-(numberofInterp*2);
         float startTime =0;
-
+int stt=0;
         for(int j=0;j<skelAnimSize;j=j+2)
         {
 
             if(j==0)
             {
+                mAnimations.get(j).setName("first");
+               // mAnimations.get(j+1).setName("firstPoseMa");
+               // Log.i("animDura","print "+mAnimations.get(j).getDuration());
                 mAnimations.get(j).start(getGVRContext().getAnimationEngine());
                 mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
 
             }
             else
             {
+                stt++;
+                mAnimations.get(j).setName("sec"+j);
 
                 startTime = mAnimations.get(j-2).getDuration()+startTime;
-                Log.i("animationcomplete","time "+startTime);
-                mAnimations.get(j).setStartTime(startTime-blendFactor);
-                mAnimations.get(j+1).setStartTime(startTime-blendFactor);
-               // mAnimations.get(j).setOffset(blendFactor);
-              //  mAnimations.get(j+1).setOffset(blendFactor);
+                Log.i("animationcomplete","time "+mAnimations.get(j).getDuration());
+                float test = startTime-(blendFactor*stt);
+                Log.i("animDura","print "+mAnimations.get(j).getDuration()+this.getName()+" startTime "+test);
+                mAnimations.get(j).setStartTime(startTime-(blendFactor*stt));
+                mAnimations.get(j+1).setStartTime(startTime-(blendFactor*stt));
                 mAnimations.get(j).start(getGVRContext().getAnimationEngine());
                 mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
-                //blendFactor = blendFactor+startTime;
+
             }
         }
         float startTimeInter = 0;
+        int x=0;
         for(int k=0;k<(numberofInterp*2); k=k+2)
         {
-            startTimeInter  = mAnimations.get(k).getDuration()-blendFactor+startTimeInter;
-            mAnimations.get(skelAnimSize+k).setStartTime(startTimeInter);
+            x++;
+            mAnimations.get(skelAnimSize+k).setName("inter"+k);
+            //mAnimations.get(skelAnimSize+k+1).setName("interPoseMa"+k+1);
+            startTimeInter  = mAnimations.get(k).getDuration()+startTimeInter;
+            float txxt = startTimeInter-(blendFactor*x);
+            Log.i("starttimeInterp","print "+txxt);
+            mAnimations.get(skelAnimSize+k).setStartTime(startTimeInter-(blendFactor*x));
             mAnimations.get(skelAnimSize+k).start(getGVRContext().getAnimationEngine());
-            mAnimations.get((skelAnimSize)+1+k).setStartTime(startTimeInter);
+            mAnimations.get((skelAnimSize)+1+k).setStartTime(startTimeInter-(blendFactor*x));
             mAnimations.get((skelAnimSize)+1+k).start(getGVRContext().getAnimationEngine());
-            startTimeInter=startTimeInter+blendFactor;
+           // startTimeInter=startTimeInter+blendFactor;
         }
     }
 

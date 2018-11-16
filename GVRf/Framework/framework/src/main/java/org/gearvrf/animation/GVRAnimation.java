@@ -439,11 +439,15 @@ public abstract class GVRAnimation {
 
         if (mCurrentTime < mStartTime)
         {
-
+            //if(this.getName().contains("inter"))
+           // {
+                Log.i("printtime","current "+mCurrentTime+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime);
+           // }
             mCurrentTime += frameTime;
             return true;
         }
        final int previousCycleCount = (int) (mElapsedTime / mDuration);
+        Log.i("animtaionCount","timer "+this.getName()+" timer "+mElapsedTime);
 
         mElapsedTime += (frameTime*animationSpeed);
         final int currentCycleCount = (int) (mElapsedTime / mDuration);

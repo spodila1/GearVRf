@@ -327,6 +327,9 @@ public class GVRPoseInterpolator extends GVRAnimation
         GVRPose secondPose = skelAnimTwo.computePose(0+timer,skelAnimTwo.getSkeleton().getPose());
 
         float mul = 1/pDuration;
+        float text = (pDuration-timer)*mul;
+        float textt = timer*mul;
+        Log.i("interpolotionFactor"," print "+text+ " fact "+textt+" name "+this.getName());
 
         for(int j =0; j<skelAnimOne.getSkeleton().getNumBones();j++)
         {
