@@ -81,56 +81,10 @@ public class GVRPoseInterpolator extends GVRAnimation
     private float[][] rotBlend;
     private float[][] sclBlend;
     private int check =0;
-
-    public GVRPoseInterpolator(GVRSceneObject target, float duration, GVRPose poseOne, GVRPose poseTwo, GVRSkeleton skeleton)
-    {
-        super(target, duration);
-
-        modelTarget = target;
-
-        initialPose = poseOne;
-        finalPose = poseTwo;
-        pSkeleton = skeleton;
-
-        poseOnePos =  new Vector3f(0,0,0);
-        poseTwoPos =  new Vector3f(0,0,0);
-        poseOneScl =  new Vector3f(0,0,0);
-        poseTwoScl =  new Vector3f(0,0,0);
-        poseOneRot =  new Quaternionf(0,0,0,1);
-        poseTwoRot =  new Quaternionf(0,0,0,1);
-
-        rotData = new float[10];
-        posData = new float[8];
-        sclData = new float[8];
-
-        posIData = new float[3];
-        sclIData = new float[3];
-        rotIData = new float[4];
-
-        tempVec = new Vector3f(0,0,0);
-        tempQuat = new Quaternionf(0,0,0,1);
-        initialPosIndex=0; //initial position index
-        finalPosIndex=10; //final position index
-        initialRotIndex=3; //initial rotation index
-        finalRotIndex=13;  //final rotation index
-        initialSclIndex=7;
-        finalSclIndex=17;
-        startTime = 0;
-        endTime =  duration;
-        startTimeIndex = 0;
-        endTimeIndex =  4;
-        offset = 0;
-        poseDataSize = 20;
-        mBones = new Bone[pSkeleton.getNumBones()];
-        poseData = new float[poseDataSize*pSkeleton.getNumBones()];
-        pDuration = duration;
-
-        for (int i = 0; i < pSkeleton.getNumBones(); i++)
-        {
-            poseInterpolate(i);
-        }
-        mat = new Matrix4f();
-    }
+    private int repear =0;
+    private GVRPose poseVn = null;
+    private GVRPose poseTw = null;
+   // GVRPose firstPose = null;
 
 
     //dynamic update
@@ -138,9 +92,11 @@ public class GVRPoseInterpolator extends GVRAnimation
     public GVRPoseInterpolator(GVRSceneObject target, float duration, GVRSkeletonAnimation skelOne, GVRSkeletonAnimation skelTwo, GVRSkeleton skeleton)
     {
         super(target, duration);
+        //skelAnimOne = new GVRSkeletonAnimation(skelOne);
         skelAnimOne = skelOne;
         skelAnimTwo = skelTwo;
         dskeleton = skeleton;
+
         rotData = new float[10];
         posData = new float[8];
         sclData = new float[8];
@@ -156,10 +112,15 @@ public class GVRPoseInterpolator extends GVRAnimation
         sclBlend = new float[skelAnimOne.getSkeleton().getNumBones()][6];
 
         GVRPose firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration,skelAnimOne.getSkeleton().getPose());
-        GVRPose secondPose = skelAnimTwo.computePose(0,skelAnimTwo.getSkeleton().getPose());
+       // poseVn = skelAnimOne.getSkeleton().getPose();
+        poseVn = (skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration,skelAnimOne.getSkeleton().getPose()));
 
+      //  dskeleton.setPose(firstPose);
+        GVRPose secondPose = skelAnimTwo.computePose(0,skelAnimTwo.getSkeleton().getPose());
+        poseTw =(skelAnimTwo.computePose(0,skelAnimTwo.getSkeleton().getPose()));
         for(int j =0; j<firstPose.getNumBones();j++)
         {
+
             Vector3f poss = new Vector3f(0,0,0);
             firstPose.getLocalPosition(j,poss);
             Vector3f possT = new Vector3f(0,0,0);
@@ -189,7 +150,7 @@ public class GVRPoseInterpolator extends GVRAnimation
             rotBlend[j][4] = q2.x;
             rotBlend[j][5] = q2.y;
             rotBlend[j][6] = q2.z;
-            rotBlend[j][6] = q2.w;
+            rotBlend[j][7] = q2.w;
 
 
             Vector3f scl = new Vector3f(0,0,0);
@@ -197,142 +158,65 @@ public class GVRPoseInterpolator extends GVRAnimation
             Vector3f sclT = new Vector3f(0,0,0);
             secondPose.getLocalScale(j,sclT);
 
-            posBlend[j][0] = scl.x;
-            posBlend[j][1] = scl.y;
-            posBlend[j][2] = scl.z;
-            posBlend[j][3] = sclT.x;
-            posBlend[j][4] = sclT.y;
-            posBlend[j][5] = sclT.z;
+            sclBlend[j][0] = scl.x;
+            sclBlend[j][1] = scl.y;
+            sclBlend[j][2] = scl.z;
+            sclBlend[j][3] = sclT.x;
+            sclBlend[j][4] = sclT.y;
+            sclBlend[j][5] = sclT.z;
 
-
-        }
+      }
         pDuration = duration;
+        repear =1;
 
 
     }
 
-    public void poseInterpolate(int index)
+
+    public void setrepear()
     {
-        setPosePositions(index);
-        setPoseRotations(index);
-        setPoseScale(index);
+        repear=1;
     }
 
 
-    private void setPosePositions(int index)
-    {
-        initialPose.getLocalPosition(index,poseOnePos);
-        finalPose.getLocalPosition(index,poseTwoPos);
-
-        offset = index*poseDataSize;
-
-        setPosePositions(offset+initialPosIndex,poseOnePos);
-        setPosePositions(offset+finalPosIndex,poseTwoPos);
-    }
-
-    public void setPosePositions(int posOffset, Vector3f posePos)
-    {
-        poseData[posOffset]=posePos.x();
-        poseData[posOffset+1]=posePos.y();
-        poseData[posOffset+2]=posePos.z();
-    }
-
-    private void setPoseRotations(int index)
-    {
-        initialPose.getLocalRotation(index,poseOneRot);
-        finalPose.getLocalRotation(index,poseTwoRot);
-        offset = index*poseDataSize;
-        setPoseRotations(offset+initialRotIndex,poseOneRot);
-        setPoseRotations(offset+finalRotIndex,poseTwoRot);
-    }
-
-    public void setPoseRotations(int rotOffset, Quaternionf poseRot)
-    {
-        poseData[rotOffset]=poseRot.x();
-        poseData[rotOffset+1]=poseRot.y();
-        poseData[rotOffset+2]=poseRot.z();
-        poseData[rotOffset+3]=poseRot.w();
-    }
-
-    private void setPoseScale(int index)
-    {
-        initialPose.getLocalScale(index,poseOneScl);
-        finalPose.getLocalScale(index,poseTwoScl);
-        offset = index*poseDataSize;
-        setPoseScale(offset+initialSclIndex,poseOneScl);
-        setPoseScale(offset+finalSclIndex,poseTwoScl);
-    }
-
-
-    public void setPoseScale(int sclOffset, Vector3f poseScl)
-    {
-        poseData[sclOffset]=poseScl.x();
-        poseData[sclOffset+1]=poseScl.y();
-        poseData[sclOffset+2]=poseScl.z();
-    }
-
-    public void updatePos(int offset)
-    {
-        posData[startTimeIndex] = startTime;
-        posData[endTimeIndex] = endTime;
-        updatePos(1, offset+initialPosIndex);
-        updatePos(5, offset+finalPosIndex);
-    }
-
-    public void updatePos(int pos, int posOffset)
-    {
-        posData[pos] = poseData[posOffset];
-        posData[pos+1] = poseData[posOffset+1];
-        posData[pos+2] = poseData[posOffset+2];
-    }
-
-    public void updateRot(int offset)
-    {
-        rotData[startTimeIndex] = startTime;
-        rotData[endTimeIndex+1] = endTime;
-        updateRot(1, offset+initialRotIndex);
-        updateRot(6, offset+finalRotIndex);
-    }
-
-    public void updateRot(int rot, int rotOffset)
-    {
-        rotData[rot] = poseData[rotOffset];
-        rotData[rot+1] = poseData[rotOffset+1];
-        rotData[rot+2] = poseData[rotOffset+2];
-        rotData[rot+3] = poseData[rotOffset+3];
-    }
-
-    public void updateScl(int offset)
-    {
-        sclData[startTimeIndex] = startTime;
-        sclData[endTimeIndex] = endTime;
-        updateScl(1, offset+initialSclIndex);
-        updateScl(5, offset+finalSclIndex);
-    }
-
-    public void updateScl(int scl, int sclOffset)
-    {
-        sclData[scl] = poseData[sclOffset];
-        sclData[scl+1] = poseData[sclOffset+1];
-        sclData[scl+2] = poseData[sclOffset+2];
-    }
-    public void getFirstPose()
-    {
-
-    }
     public void getSecondPose(float timer)
     {
+        GVRPose firstPose = null;// skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration+timer,skelAnimOne.getSkeleton().getPose());
+        GVRPose secondPose =null;// skelAnimTwo.computePose(0+timer,skelAnimTwo.getSkeleton().getPose());
+        GVRPose fs = null;
+        GVRPose ss = null;
         //float blendFac = 0.5f;
-        GVRPose firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration,skelAnimOne.getSkeleton().getPose());
-        GVRPose secondPose = skelAnimTwo.computePose(0+timer,skelAnimTwo.getSkeleton().getPose());
+
+        if(repear==2)
+       {
+           firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration+timer,poseVn);
+           secondPose = skelAnimTwo.computePose(0+timer,poseTw);
+           Log.i("printfirstpose","posece"+timer);
+           fs = new GVRPose(poseVn);
+           ss =  new GVRPose(poseTw);
+           // firstPose = poseVn;
+           repear++;
+       }
+       else
+       {
+
+           fs = skelAnimOne.getSkeleton().getPose();
+           ss = poseTw;
+           firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration+timer,fs);
+           secondPose = skelAnimTwo.computePose(0+timer,ss);
+
+       }
+
 
         float mul = 1/pDuration;
-        float text = (pDuration-timer)*mul;
-        float textt = timer*mul;
-        Log.i("interpolotionFactor"," print "+text+ " fact "+textt+" name "+this.getName());
+
 
         for(int j =0; j<skelAnimOne.getSkeleton().getNumBones();j++)
         {
+            if(j==0)
+            {
+                Log.i("printjvalue","pos x"+posBlend[j][3]+" pos y "+posBlend[j][4]+" pos z "+posBlend[j][5]);
+            }
             Vector3f poss = new Vector3f(0,0,0);
             firstPose.getLocalPosition(j,poss);
             Vector3f possT = new Vector3f(0,0,0);
@@ -367,18 +251,63 @@ public class GVRPoseInterpolator extends GVRAnimation
     }
     protected void animate(GVRHybridObject target, float ratio)
     {
+        Log.i("printAnima","enni");
+
         animate(pDuration * ratio);
     }
 
     public void animate(float timer) {
 
-        skelAnimOne.setPose(skelAnimOne.getSkeleton().getPose());
-        skelAnimTwo.setPose(skelAnimTwo.getSkeleton().getPose());
+        double roundOff = Math.round(timer * 100.0) / 100.0;
+        if(roundOff==0.01||roundOff==0.0)
+        {
 
-        initialPose = dskeleton.getPose();
 
-        Matrix4f temp = new Matrix4f();
-        GVRSkeleton skel = dskeleton;
+            return;
+        }
+        if(repear==1)
+        {
+          Log.i("printoneTime"," print ");
+           initialPose = poseVn;
+            mat = new Matrix4f();
+            for (int i = 0; i < dskeleton.getNumBones(); ++i) {
+
+                Vector3f poss = new Vector3f(0,0,0);
+                poseVn.getLocalPosition(i,poss);
+
+
+                //quaternion
+
+                Quaternionf q1 = new Quaternionf(0,0,0,1);
+                poseVn.getLocalRotation(i,q1);
+
+                posBlend[i][0] = poss.x;
+                posBlend[i][1] = poss.y;
+                posBlend[i][2] = poss.z;
+
+                rotBlend[i][0] = q1.x;
+                rotBlend[i][1] = q1.y;
+                rotBlend[i][2] = q1.z;
+                rotBlend[i][3] = q1.w;
+
+                Vector3f scl = new Vector3f(0,0,0);
+                poseVn.getLocalScale(i,scl);
+
+
+                sclBlend[i][0] = scl.x;
+                sclBlend[i][1] = scl.y;
+                sclBlend[i][2] = scl.z;
+
+
+
+        }
+         repear++;
+
+        }
+        else if(repear>2)
+        {
+            initialPose = poseVn;//dskeleton.getPose();
+        }
 
         posData[4]=timer;
         sclData[4]=timer;
@@ -388,6 +317,8 @@ public class GVRPoseInterpolator extends GVRAnimation
 
         for (int i = 0; i < dskeleton.getNumBones(); ++i)
         {
+
+
             posData[1]= posBlend[i][0];
             posData[2]= posBlend[i][1];
             posData[3]= posBlend[i][2];
@@ -434,15 +365,18 @@ public class GVRPoseInterpolator extends GVRAnimation
             sclBlend[i][1] = sclIData[1];
             sclBlend[i][2] = sclIData[2];
 
+
+
         }
 
         dskeleton.poseToBones();
         dskeleton.updateBonePose();
         dskeleton.updateSkinPose();
+
         posData[0]=timer;
         rotData[0]=timer;
         sclData[0] = timer;
-        check++;
+
 
 
     }

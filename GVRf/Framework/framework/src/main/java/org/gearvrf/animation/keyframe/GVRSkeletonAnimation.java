@@ -248,24 +248,40 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
      */
     public void animate(float timeInSec)
     {
-        if(timeInSec>blendFactor)
-        {
-            mPose = null;
-        }
-        if (mPose != null)
+
+        double roundOff = Math.round(timeInSec * 100.0) / 100.0;
+        if(roundOff==0.01||roundOff==0.0)
         {
             return;
         }
 
+        float time = (this.getDuration()-blendFactor);
+
+        if((timeInSec>time)&&this.getName()=="first")
+       // if(this.getName()=="first")
+        {
+
+            return;
+        }
+        else if ((0<timeInSec)&&(timeInSec<blendFactor)&&this.getName()=="sec")
+      // else if (this.getName()=="sec")
+        {
+            return;
+        }
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
+       // Log.i("printfirst","patt "+timeInSec+" name "+this.getName());
+
         computePose(timeInSec,pose);
+        Log.i("printfirst","patt "+timeInSec+" name "+this.getName());
         skel.poseToBones();
         skel.updateBonePose();
         skel.updateSkinPose();
     }
     public GVRPose computePose(float timeInSec, GVRPose pose)
     {
+
+      //  Log.i("printAnimTime"," names "+this.getName()+" "+timeInSec);
         Matrix4f temp = new Matrix4f();
         GVRSkeleton skel = getSkeleton();
         Vector3f rootOffset = skel.getRootOffset();
@@ -287,7 +303,7 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
                 pose.setLocalMatrix(i, temp);
             }
         }
-
+        Log.i("printfirst","patt "+timeInSec+" name "+this.getName());
         return pose;
     }
 

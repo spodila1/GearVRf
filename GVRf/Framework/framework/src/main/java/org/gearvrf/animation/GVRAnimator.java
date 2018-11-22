@@ -294,6 +294,7 @@ public class GVRAnimator extends GVRBehavior
      */
     public void start()
     {
+        int st =0;
         if (mAnimations.size() == 0)
         {
             return;
@@ -301,7 +302,21 @@ public class GVRAnimator extends GVRBehavior
         mIsRunning = true;
         for (GVRAnimation anim : mAnimations)
         {
+            if(st==0||st==1)
+            {
+                anim.setName("firss");
+               // anim.setStartTime(mAnimations.get(0).getDuration());
+                Log.i("animDura","ufyfuu"+mAnimations.get(0).getDuration());
+            }
+           if(st==2||st==3)
+           {
+               anim.setName("seccc");
+               anim.setStartTime(mAnimations.get(0).getDuration());
+               Log.i("animDura","ufyfuu"+mAnimations.get(2).getDuration());
+           }
+           // Log.i("animDura","ufyfuu"+anim.getDuration());
             anim.start(getGVRContext().getAnimationEngine());
+            st++;
         }
     }
 
@@ -311,16 +326,20 @@ public class GVRAnimator extends GVRBehavior
         {
             return;
         }
+
         mIsRunning = true;
         int tempAnimSze = mAnimations.size();
         for(int i=0;i<(tempAnimSze)-2;i=i+2)
         {
+
             GVRSkeletonAnimation skelOne = (GVRSkeletonAnimation)mAnimations.get(i);
             Log.i("warningcoming","test "+mAnimations.get(i+2).getClass().getName()+i+" "+((tempAnimSze)-2));
             GVRSkeletonAnimation skelTwo = (GVRSkeletonAnimation)mAnimations.get(i+2);
 
             GVRPoseInterpolator blendAnim = new GVRPoseInterpolator(animModel, blendFactor, skelOne, skelTwo, skelOne.getSkeleton());
+
             GVRPoseMapper retargeterP = new GVRPoseMapper(animAvatar.getSkeleton(), skelOne.getSkeleton(), blendFactor);
+
             retargeterP.setBoneMap(mBoneMap);
 
             mAnimations.add(blendAnim);
@@ -339,7 +358,10 @@ int stt=0;
             if(j==0)
             {
                 mAnimations.get(j).setName("first");
-               // mAnimations.get(j+1).setName("firstPoseMa");
+                mAnimations.get(j+1).setName("first");
+                GVRSkeletonAnimation skelset = (GVRSkeletonAnimation)mAnimations.get(i);
+                skelset.setblendFactor(blendFactor);
+                // mAnimations.get(j+1).setName("firstPoseMa");
                // Log.i("animDura","print "+mAnimations.get(j).getDuration());
                 mAnimations.get(j).start(getGVRContext().getAnimationEngine());
                 mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
@@ -347,11 +369,14 @@ int stt=0;
             }
             else
             {
-                stt++;
-                mAnimations.get(j).setName("sec"+j);
 
+                stt++;
+                mAnimations.get(j).setName("sec");
+                mAnimations.get(j+1).setName("sec");
+                GVRSkeletonAnimation skelsetT = (GVRSkeletonAnimation)mAnimations.get(j);
+                skelsetT.setblendFactor(blendFactor);
                 startTime = mAnimations.get(j-2).getDuration()+startTime;
-                Log.i("animationcomplete","time "+mAnimations.get(j).getDuration());
+                Log.i("animationcomplete","time "+mAnimations.get(j).getDuration()+" previous "+ mAnimations.get(j-2).getDuration());
                 float test = startTime-(blendFactor*stt);
                 Log.i("animDura","print "+mAnimations.get(j).getDuration()+this.getName()+" startTime "+test);
                 mAnimations.get(j).setStartTime(startTime-(blendFactor*stt));
@@ -366,7 +391,12 @@ int stt=0;
         for(int k=0;k<(numberofInterp*2); k=k+2)
         {
             x++;
-            mAnimations.get(skelAnimSize+k).setName("inter"+k);
+            mAnimations.get(skelAnimSize+k).setName("inter");
+            mAnimations.get(skelAnimSize+k+1).setName("inter");
+            mAnimations.get(skelAnimSize+k).setRepeatMode(GVRRepeatMode.REPEATED);
+            mAnimations.get(skelAnimSize+k+1).setRepeatMode(GVRRepeatMode.REPEATED);
+            mAnimations.get(skelAnimSize+k).setRepeatCount(-1);
+            mAnimations.get(skelAnimSize+k+1).setRepeatCount(-1);
             //mAnimations.get(skelAnimSize+k+1).setName("interPoseMa"+k+1);
             startTimeInter  = mAnimations.get(k).getDuration()+startTimeInter;
             float txxt = startTimeInter-(blendFactor*x);
@@ -375,6 +405,7 @@ int stt=0;
             mAnimations.get(skelAnimSize+k).start(getGVRContext().getAnimationEngine());
             mAnimations.get((skelAnimSize)+1+k).setStartTime(startTimeInter-(blendFactor*x));
             mAnimations.get((skelAnimSize)+1+k).start(getGVRContext().getAnimationEngine());
+
            // startTimeInter=startTimeInter+blendFactor;
         }
     }
@@ -410,6 +441,7 @@ int stt=0;
             {
                 anim.setOnFinish(null);
             }
+           // Log.i("callingish","fininshesss");
             anim.start(getGVRContext().getAnimationEngine());
         }
     }

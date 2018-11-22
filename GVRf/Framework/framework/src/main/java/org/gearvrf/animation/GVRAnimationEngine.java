@@ -21,6 +21,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import org.gearvrf.GVRContext;
 import org.gearvrf.GVRDrawFrameListener;
 import org.gearvrf.GVRSceneObject;
+import org.gearvrf.utility.Log;
 
 /**
  * This class runs {@linkplain GVRAnimation animations}.
@@ -114,6 +115,7 @@ public class GVRAnimationEngine {
             animation.reset();
             mAnimations.add(animation);
         }
+        Log.i("animstart","isit rep");
         animation.onStart();
         return animation;
     }

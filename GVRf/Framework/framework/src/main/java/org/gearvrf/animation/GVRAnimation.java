@@ -111,6 +111,8 @@ public abstract class GVRAnimation {
     protected float mCurrentTime = 0;
     protected float mStartTime = 0;
     protected String mName = null;
+    static float timeper = 0;
+    private int countfind=0;
 
     /**
      * This is derived from {@link #mOnFinish}. Doing the {@code instanceof}
@@ -401,6 +403,7 @@ public abstract class GVRAnimation {
 
     public void onStart()
     {
+        Log.i("gfggfgffggf","current "+mCurrentTime+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime);
         mCurrentTime = 0;
         if (sDebug)
         {
@@ -409,15 +412,46 @@ public abstract class GVRAnimation {
     }
 
     protected void onFinish()
-    {
+    {           // Log.i("gfggfgffggf","current "+mCurrentTime+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime);
+
         if (sDebug)
         {
             Log.d("ANIMATION", "%s finished", getClass().getSimpleName());
         }
     }
+    float first = 5.833328f;//2.2999978f;
+    float second = 3.2999969f;//4.0416727f//8.3333249
 
     protected void onRepeat(float frameTime, int count)
     {
+        Log.i("animtaionCount","timer "+this.getName()+" timer "+mElapsedTime+" "+count);
+        mCurrentTime = 0;
+        mStartTime = 0;
+        if(this.getName()=="first")
+        {
+            mStartTime = second-0.4f;
+        }
+        if(this.getName()=="sec")
+        {
+           mStartTime =(first-0.4f);
+        }
+        if(this.getName()=="inter")
+        {
+          //
+
+            if(this.getClass().getName().contains("GVRPoseInterpolator"))
+            {
+                GVRPoseInterpolator poss = (GVRPoseInterpolator)this;
+                poss.setrepear();
+            }
+           Log.i("printclassname","name "+this.getClass().getName());
+            countfind = count;
+            mStartTime =(first+second-0.8f);
+          //  Log.i("printtimeRepeat","count "+count+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime+ " curr "+mCurrentTime);
+          //  mStartTime =(first-0.2f);
+        }
+
+        Log.i("printtimeRepeat","count "+count+" startTime "+mStartTime+" name "+this.getName());
         if (sDebug)
         {
             Log.d("ANIMATION", "%s repeated %d", getClass().getSimpleName(), count);
@@ -437,17 +471,17 @@ public abstract class GVRAnimation {
 
     final boolean onDrawFrame(float frameTime) {
 
+        timeper += frameTime;
+        //Log.i("printtimestart","current  startTime "+mStartTime+" name "+this.getName());
+
         if (mCurrentTime < mStartTime)
         {
-            //if(this.getName().contains("inter"))
-           // {
-                Log.i("printtime","current "+mCurrentTime+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime);
-           // }
             mCurrentTime += frameTime;
             return true;
         }
+
        final int previousCycleCount = (int) (mElapsedTime / mDuration);
-        Log.i("animtaionCount","timer "+this.getName()+" timer "+mElapsedTime);
+        Log.i("printtimestart","current  startTime "+mElapsedTime+" name "+this.getName());
 
         mElapsedTime += (frameTime*animationSpeed);
         final int currentCycleCount = (int) (mElapsedTime / mDuration);
