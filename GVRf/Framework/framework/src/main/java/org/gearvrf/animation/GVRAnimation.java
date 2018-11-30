@@ -28,7 +28,7 @@ import android.graphics.Color;
 
 /**
  * The root of the GVRF animation tree.
- * 
+ *
  * This class (and the {@linkplain GVRAnimationEngine engine}) supply the common
  * functionality: descendants are tiny classes that contain compiled (ie, no
  * runtime reflection is used) code to change individual properties. Most
@@ -37,7 +37,7 @@ import android.graphics.Color;
  * {@linkplain GVRShaderData "post effect":} accordingly, most actual animations
  * descend from {@link GVRTransformAnimation}, {@link GVRMaterialAnimation}, or
  * {@link GVRPostEffectAnimation} and not directly from {@link GVRAnimation}.
- * 
+ *
  * <p>
  * All animations have at least three or more required parameters: the object to
  * animate, the duration, and any animation parameters. In many cases, there are
@@ -46,7 +46,7 @@ import android.graphics.Color;
  * {@code float[3]} of GL-compatible 0 to 1 values. In addition, all the stock
  * animations that animate a type like, say, {@link GVRMaterial} 'know how' to
  * find the {@link GVRMaterial} inside a {@link GVRSceneObject}.
- * 
+ *
  * <p>
  * This means that most animations have two or four overloaded constructors.
  * This is trouble for the animation developer - who must keep four sets of
@@ -54,22 +54,22 @@ import android.graphics.Color;
  * there are also four optional parameters: the interpolator, the repeat type,
  * the repeat count, and an on-finished callback. Adding these to an overload
  * tree would, well, overload both developers and users!
- * 
+ *
  * <p>
  * Thus, animations use a sort of Builder Pattern: you set the optional
  * parameters <i>via</i> set() methods that return {@code this}, so you can
  * chain them like
- * 
+ *
  * <pre>
- * 
+ *
  * new GVRScaleAnimation(sceneObject, 1.5f, 2f) //
  *         .setRepeatMode(GVRRepetitionType.PINGPONG) //
  *         .start({@linkplain GVRAnimationEngine animationEngine});
  * </pre>
- * 
+ *
  * which will 'pulse' the size of the {@code sceneObject} from its current level
  * to double size, and back.
- * 
+ *
  * <p>
  * Animations run in a {@link GVRDrawFrameListener}, so they happen before your
  * {@link GVRMain#onStep()} handler, which happens before GVRF
@@ -89,7 +89,7 @@ public abstract class GVRAnimation {
     /**
      * The default repeat count only applies to the two repeat modes, not to the
      * default run-once mode.
-     * 
+     *
      * The default repeat count is 2, so that a ping pong animation will return
      * to the start state, even if you don't
      * {@linkplain GVRAnimation#setRepeatCount(int) setRepeatCount(2).}
@@ -113,6 +113,9 @@ public abstract class GVRAnimation {
     protected String mName = null;
     static float timeper = 0;
     private int countfind=0;
+    static int counter = 0;
+    static int counterS = 0;
+    boolean flagB = false;
 
     /**
      * This is derived from {@link #mOnFinish}. Doing the {@code instanceof}
@@ -129,9 +132,9 @@ public abstract class GVRAnimation {
 
     /**
      * Base constructor.
-     * 
+     *
      * Sets required fields, initializes optional fields to default values.
-     * 
+     *
      * @param target
      *            The object to animate. Note that this constructor makes a
      *            <em>private<em> copy of the {@code target}
@@ -157,7 +160,7 @@ public abstract class GVRAnimation {
      * exception if they get a type they can't handle; it also returns the
      * matched type (which may not be equal to {@code target.getClass()}) so
      * that calling code doesn't have to do {@code instanceof} tests.
-     * 
+     *
      * @param target
      *            A {@link GVRHybridObject} instance
      * @param supported
@@ -168,7 +171,7 @@ public abstract class GVRAnimation {
      *             {@code supported} types
      */
     protected static Class<?> checkTarget(GVRHybridObject target,
-            Class<?>... supported) {
+                                          Class<?>... supported) {
         for (Class<?> type : supported) {
             if (type.isInstance(target)) {
                 return type;
@@ -180,13 +183,13 @@ public abstract class GVRAnimation {
 
     /**
      * Set the interpolator.
-     * 
+     *
      * By default, animations proceed linearly: at X percent of the duration,
      * the animated property will be at X percent of the way from the start
      * state to the stop state. Specifying an explicit interpolator lets the
      * animation do other things, like accelerate and decelerate, overshoot,
      * bounce, and so on.
-     * 
+     *
      * @param interpolator
      *            An interpolator instance. {@code null} gives you the default,
      *            linear animation.
@@ -199,13 +202,13 @@ public abstract class GVRAnimation {
 
     /**
      * Set the repeat type.
-     * 
+     *
      * In the default {@linkplain GVRRepeatMode#ONCE run-once} mode, animations
      * run once, ignoring the {@linkplain #getRepeatCount() repeat count.} In
      * {@linkplain GVRRepeatMode#PINGPONG ping pong} and
      * {@linkplain GVRRepeatMode#REPEATED repeated} modes, animations do honor
      * the repeat count, which {@linkplain #DEFAULT_REPEAT_COUNT defaults} to 2.
-     * 
+     *
      * @param repeatMode
      *            One of the {@link GVRRepeatMode} constants
      * @return {@code this}, so you can chain setProperty() calls.
@@ -224,7 +227,7 @@ public abstract class GVRAnimation {
 
     /**
      * Set the repeat count.
-     * 
+     *
      * @param repeatCount
      *            <table border="none">
      *            <tr>
@@ -233,7 +236,7 @@ public abstract class GVRAnimation {
      *            notes on {@linkplain GVROnFinish#finished(GVRAnimation)
      *            stopping an animation.}</td>
      *            </tr>
-     * 
+     *
      *            <tr>
      *            <td>0</td>
      *            <td>After {@link #start(GVRAnimationEngine) start()}, 0 means
@@ -243,7 +246,7 @@ public abstract class GVRAnimation {
      *            special-cased so setting the repeat count to 0 will do what
      *            you expect.</td>
      *            </tr>
-     * 
+     *
      *            <tr>
      *            <td>A positive number</td>
      *            <td>Specifies a repeat count</td>
@@ -334,16 +337,16 @@ public abstract class GVRAnimation {
     public void setName(String name) { mName = name; }
     /**
      * Set the on-finish callback.
-     * 
+     *
      * The basic {@link GVROnFinish} callback will notify you when the animation
      * runs to completion. This is a good time to do things like removing
      * now-invisible objects from the scene graph.
-     * 
+     *
      * <p>
      * The extended {@link GVROnRepeat} callback will be called after every
      * iteration of an indefinite (repeat count less than 0) animation, giving
      * you a way to stop the animation when it's not longer appropriate.
-     * 
+     *
      * @param callback
      *            A {@link GVROnFinish} or {@link GVROnRepeat} implementation.
      *            <p>
@@ -369,7 +372,7 @@ public abstract class GVRAnimation {
 
     /**
      * Start the animation.
-     * 
+     *
      * Changing properties once the animation is running can have unpredictable
      * results.
      * @param engine animation engine to start.
@@ -377,92 +380,90 @@ public abstract class GVRAnimation {
      * This method is exactly equivalent to
      * {@link GVRAnimationEngine#start(GVRAnimation)} and is provided as a
      * convenience so you can write code like
-     * 
+     *
      * <pre>
-     * 
+     *
      * GVRAnimation animation = new GVRAnimationDescendant(target, duration)
      *         .setOnFinish(callback).start(animationEngine);
      * </pre>
-     * 
+     *
      * instead of
-     * 
+     *
      * <pre>
-     * 
+     *
      * GVRAnimation animation = new GVRAnimationDescendant(target, duration)
      *         .setOnFinish(callback);
      * animationEngine.start(animation);
      * </pre>
-     * 
+     *
      * @return {@code this}, so you can save the instance at the end of a chain
      *         of calls
      */
     public GVRAnimation start(GVRAnimationEngine engine) {
+        // Log.i("engine","started"+this.getName());
         engine.start(this);
         return this;
     }
 
     public void onStart()
     {
-        Log.i("gfggfgffggf","current "+mCurrentTime+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime);
         mCurrentTime = 0;
         if (sDebug)
         {
-            Log.d("ANIMATION", "%s started", getClass().getSimpleName());
+            //  Log.d("ANIMATION", "%s started", getClass().getSimpleName());
         }
     }
 
     protected void onFinish()
-    {           // Log.i("gfggfgffggf","current "+mCurrentTime+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime);
+    {
 
         if (sDebug)
         {
-            Log.d("ANIMATION", "%s finished", getClass().getSimpleName());
+            //  Log.d("ANIMATION", "%s finished", getClass().getSimpleName());
         }
     }
+    static boolean firstFlag = true;
+    static boolean secondFlag = false;
+    static boolean interFlag=false;
+    float newElaps = 0;
     float first = 5.833328f;//2.2999978f;
     float second = 3.2999969f;//4.0416727f//8.3333249
+    float inter = 1f;//4.0416727f//8.3333249
+    private float firstEnoughElapsed = first - inter;
 
-    protected void onRepeat(float frameTime, int count)
+    protected void onRepeat(float frameTime, int count, float mElapsedTime)
     {
-        Log.i("animtaionCount","timer "+this.getName()+" timer "+mElapsedTime+" "+count);
-        mCurrentTime = 0;
-        mStartTime = 0;
-        if(this.getName()=="first")
-        {
-            mStartTime = second-0.4f;
-        }
-        if(this.getName()=="sec")
-        {
-           mStartTime =(first-0.4f);
-        }
-        if(this.getName()=="inter")
-        {
-          //
 
-            if(this.getClass().getName().contains("GVRPoseInterpolator"))
-            {
-                GVRPoseInterpolator poss = (GVRPoseInterpolator)this;
-                poss.setrepear();
-            }
-           Log.i("printclassname","name "+this.getClass().getName());
-            countfind = count;
-            mStartTime =(first+second-0.8f);
-          //  Log.i("printtimeRepeat","count "+count+" startTime "+mStartTime+" name "+this.getName()+" elapsed "+mElapsedTime+ " curr "+mCurrentTime);
-          //  mStartTime =(first-0.2f);
-        }
+        if((this.getName()=="first"&&this.getClass().getName().contains("GVRSkeletonAnimation")))
+        {
+            firstFlag = false;
+            // interFlag = false;
 
-        Log.i("printtimeRepeat","count "+count+" startTime "+mStartTime+" name "+this.getName());
+        }
+        if((this.getName()=="sec"&&this.getClass().getName().contains("GVRSkeletonAnimation")))
+        {
+            firstFlag = true;
+            secondFlag= false;
+
+        }
+        if((this.getName()=="inter"&&this.getClass().getName().contains("GVRPoseInterpolator")))
+        {
+            interFlag = false;
+
+        }
         if (sDebug)
         {
-            Log.d("ANIMATION", "%s repeated %d", getClass().getSimpleName(), count);
+            //  Log.d("ANIMATION", "%s repeated %d", getClass().getSimpleName(), count);
         }
+        // Log.i("callOn","Repeat "+"name "+this.getName()+" first "+firstFlag+ " second "+secondFlag+" inter "+interFlag);
+
     }
 
     /**
      * Called by the animation engine. Uses the frame time, the interpolator,
      * and the repeat mode to generate a call to
      * {@link #animate(GVRHybridObject, float)}.
-     * 
+     *
      * @param frameTime
      *            elapsed time since the previous animation frame, in seconds
      * @return {@code true} to keep running the animation; {@code false} to shut
@@ -471,19 +472,23 @@ public abstract class GVRAnimation {
 
     final boolean onDrawFrame(float frameTime) {
 
-        timeper += frameTime;
-        //Log.i("printtimestart","current  startTime "+mStartTime+" name "+this.getName());
 
-        if (mCurrentTime < mStartTime)
-        {
-            mCurrentTime += frameTime;
+        if(this.getName()=="first" && !firstFlag)
             return true;
+        if(this.getName()=="sec" && !secondFlag)
+            return true;
+        if(this.getName()=="inter" && !interFlag)
+            return true;
+       // Log.i("callOn","Repeat "+"name "+this.getName()+" first "+firstFlag+ " second "+secondFlag+" inter "+interFlag);
+
+        if((this.getName()=="first"&&this.getClass().getName().contains("GVRSkeletonAnimation")) &&((mElapsedTime-newElaps) >= firstEnoughElapsed)){
+            Log.i("callOn","Repeat "+"name "+this.getName()+" first "+(mElapsedTime)+" "+newElaps);
+            secondFlag = true;
+            interFlag = true;
         }
-
-       final int previousCycleCount = (int) (mElapsedTime / mDuration);
-        Log.i("printtimestart","current  startTime "+mElapsedTime+" name "+this.getName());
-
+        final int previousCycleCount = (int) (mElapsedTime / mDuration);
         mElapsedTime += (frameTime*animationSpeed);
+
         final int currentCycleCount = (int) (mElapsedTime / mDuration);
         final float cycleTime = (mElapsedTime % mDuration)+animationOffset;
 
@@ -491,6 +496,7 @@ public abstract class GVRAnimation {
         boolean stillRunning = cycled != true;
 
         if (cycled && mRepeatMode != GVRRepeatMode.ONCE) {
+            //  Log.i("callOn","Repeat "+"name "+this.getClass().getName()+" "+mElapsedTime);
             // End of a cycle - see if we should continue
             mIterations += 1;
             if (mRepeatCount == 0) {
@@ -498,7 +504,12 @@ public abstract class GVRAnimation {
             } else if (mRepeatCount > 0) {
                 stillRunning = --mRepeatCount > 0;
             } else {
-                onRepeat(frameTime, currentCycleCount);
+            if(this.getName()=="first"&&this.getClass().getName().contains("GVRSkeletonAnimation"))
+              {
+              newElaps = mElapsedTime;
+               }
+                onRepeat(frameTime, currentCycleCount, mElapsedTime);
+
                 // Negative repeat count - call mOnRepeat, if we can
                 if (mOnRepeat != null) {
                     stillRunning = mOnRepeat.iteration(this, mIterations);
@@ -513,12 +524,12 @@ public abstract class GVRAnimation {
                     && (mIterations & 1) == 1;
 
             float elapsedRatio = //
-            countDown != true ? interpolate(cycleTime, mDuration)
-                    : interpolate(mDuration - cycleTime, mDuration);
-
-
+                    countDown != true ? interpolate(cycleTime, mDuration)
+                            : interpolate(mDuration - cycleTime, mDuration);
             animate(mTarget, elapsedRatio);
+
         } else {
+
             float endRatio = mRepeatMode == GVRRepeatMode.ONCE ? 1f : 0f;
 
             endRatio = interpolate(mDuration, mDuration);
@@ -529,7 +540,7 @@ public abstract class GVRAnimation {
             if (mOnFinish != null) {
                 mOnFinish.finished(this);
             }
-            
+
             isFinished = true;
         }
 
@@ -543,14 +554,14 @@ public abstract class GVRAnimation {
 
     /**
      * Checks whether the animation has run to completion.
-     * 
+     *
      * For {@linkplain GVRRepeatMode#ONCE run-once} animations, this means only
      * that the animation has timed-out: generally, this means that the
      * (optional) onFinish callback has been invoked and the animation
      * 'unregistered' by the {@linkplain GVRAnimationEngine animation engine}
      * but it's not impossible that there is some lag between time-out and
      * finalization.
-     * 
+     *
      * <p>
      * For {@linkplain GVRRepeatMode#REPEATED repeated} or
      * {@linkplain GVRRepeatMode#PINGPONG ping pong} animations, this method can
@@ -562,9 +573,9 @@ public abstract class GVRAnimation {
      * to handle indeterminate animations is to use
      * {@link #setOnFinish(GVROnFinish)} to set an {@linkplain GVROnRepeat}
      * handler, before calling {@link #start(GVRAnimationEngine)}.
-     * 
+     *
      * @return {@code true} if done or repeating; {@code false} if on first run.
-     */ 
+     */
     public final boolean isFinished() {
         return isFinished;
     }
@@ -578,11 +589,11 @@ public abstract class GVRAnimation {
 
     /**
      * Get the current repeat count.
-     * 
+     *
      * A negative number means the animation will repeat indefinitely; zero
      * means the animation will stop after the current cycle; a positive number
      * is the number of cycles after the current cycle.
-     * 
+     *
      * @return The current repeat count
      */
     public int getRepeatCount() {
@@ -602,9 +613,9 @@ public abstract class GVRAnimation {
     /**
      * The duration passed to {@linkplain #GVRAnimation(GVRHybridObject, float)
      * the constructor.}
-     * 
+     *
      * This may be useful if you have to, say, 'undo' a running animation.
-     * 
+     *
      * @return The duration passed to the constructor.
      */
     public float getDuration() {
@@ -613,11 +624,11 @@ public abstract class GVRAnimation {
 
     /**
      * How long the animation has been running.
-     * 
+     *
      * This may be useful if you have to, say, 'undo' a running animation. With
      * {@linkplain #getRepeatCount() repeated animations,} this may be longer
      * than the {@linkplain #getDuration() duration.}
-     * 
+     *
      * @return How long the animation has been running.
      */
     public float getElapsedTime() {
@@ -644,7 +655,7 @@ public abstract class GVRAnimation {
      * Override this to create a new animation. Generally, you do this by
      * changing some property of the {@code mTarget}, and letting GVRF handle
      * screen updates automatically.
-     * 
+     *
      * @param target
      *            The GVRF object to animate
      * @param ratio

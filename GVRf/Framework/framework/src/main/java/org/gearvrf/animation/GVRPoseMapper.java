@@ -218,35 +218,22 @@ public class GVRPoseMapper extends GVRAnimation
      */
     public void animate(GVRHybridObject target, float time)
     {
+
         if ((mSourceSkeleton == null) || !mSourceSkeleton.isEnabled())
         {
             return;
-        }
-/*
-        double roundOff = Math.round(time * 100.0) / 100.0;
-        if(roundOff==0.01||roundOff==0.0)
-        {
-            return;
-        }
+        }/*
+        float timer = (this.getDuration()-1);
 
-      //  float time = (this.getDuration()-0.4f);
-        float timer = (this.getDuration()-0.4f);
         if((time>timer)&&this.getName()=="first")
-        // if(this.getName()=="first")
         {
 
             return;
         }
-        else if ((0<time)&&(time<0.4f)&&this.getName()=="sec")
-        // else if (this.getName()=="sec")
+        else if ((0<time)&&(time<1)&&this.getName()=="sec")
         {
             return;
-        }
-        if(this.getName()=="first")
-        {
-            Log.i("printposemap","time "+this.getDuration()+" name "+this.getName());
-        }
-*/
+        }*/
         mapLocalToTarget();
         mDestSkeleton.poseToBones();
         mDestSkeleton.updateBonePose();
