@@ -116,6 +116,7 @@ public abstract class GVRAnimation {
     static int counter = 0;
     static int counterS = 0;
     boolean flagB = false;
+    static int sizeofAnim = 0;
 
     /**
      * This is derived from {@link #mOnFinish}. Doing the {@code instanceof}
@@ -422,40 +423,73 @@ public abstract class GVRAnimation {
             //  Log.d("ANIMATION", "%s finished", getClass().getSimpleName());
         }
     }
-    static boolean firstFlag = true;
-    static boolean secondFlag = false;
-    static boolean interFlag=false;
+
     float newElaps = 0;
-    float first = 5.833328f;//2.2999978f;
-    float second = 3.2999969f;//4.0416727f//8.3333249
-    float inter = 1f;//4.0416727f//8.3333249
-    private float firstEnoughElapsed = first - inter;
+
+    private int animId = 0;
+    private float blendDur = 0;
+
+    static boolean[] flagArr; //= new boolean[sizeofAnim];
+    public void setFlag(int size)
+    {
+        sizeofAnim = size;
+        flagArr = new boolean[sizeofAnim];
+        flagArr[0]=true;
+        flagArr[1]=true;
+
+        for(int i=2; i<size; i++)
+        {
+           // Log.i("printanim","pring"+size);
+            flagArr[i] = false;
+
+        }
+    }
+    public void setSize(int size)
+    {
+        sizeofAnim = size;
+    }
+
+    public void setID(int id)
+    {
+        animId = id;
+    }
+    public void setDur(float blendT)
+    {
+        blendDur = blendT;
+    }
+    public int getID()
+    {
+        return animId;
+    }
 
     protected void onRepeat(float frameTime, int count, float mElapsedTime)
     {
+print=0;
+        if(this.getID()%2==0) {
 
-        if((this.getName()=="first"&&this.getClass().getName().contains("GVRSkeletonAnimation")))
-        {
-            firstFlag = false;
-            // interFlag = false;
-
+            if((this.getID())!=((sizeofAnim)-2)&&(this.getClass().getName().contains("GVRSkeletonAnimation")||this.getClass().getName().contains("GVRPoseInterpolator")))
+            {
+                flagArr[this.getID()] = false;
+                flagArr[this.getID()+1] = false;
+                if(this.getClass().getName().contains("GVRPoseInterpolator"))
+                {
+                    flagArr[this.getID()-1] = false;
+                    flagArr[this.getID()-2] = false;
+                }
+            }
+            else if((this.getID()==((sizeofAnim)-2))&&(this.getClass().getName().contains("GVRSkeletonAnimation")))
+            {
+                flagArr[this.getID()] = false;
+                flagArr[this.getID()+1] = false;
+                flagArr[0] = true;
+                flagArr[1] = true;
+            }
         }
-        if((this.getName()=="sec"&&this.getClass().getName().contains("GVRSkeletonAnimation")))
-        {
-            firstFlag = true;
-            secondFlag= false;
 
-        }
-        if((this.getName()=="inter"&&this.getClass().getName().contains("GVRPoseInterpolator")))
-        {
-            interFlag = false;
-
-        }
         if (sDebug)
         {
             //  Log.d("ANIMATION", "%s repeated %d", getClass().getSimpleName(), count);
         }
-        // Log.i("callOn","Repeat "+"name "+this.getName()+" first "+firstFlag+ " second "+secondFlag+" inter "+interFlag);
 
     }
 
@@ -469,23 +503,30 @@ public abstract class GVRAnimation {
      * @return {@code true} to keep running the animation; {@code false} to shut
      *         it down
      */
-
+int print =0;
+int countr = 0;
     final boolean onDrawFrame(float frameTime) {
 
+      //  Log.i("callOn","Repeat "+" first "+flagArr[0]+ " inter1 "+flagArr[2]+" sec "+flagArr[4]+" inter2 "+flagArr[6]+" third "+flagArr[8]+" inter3 "+flagArr[10]+" four "+flagArr[12]);
+           if(!flagArr[this.getID()]) {
+                return true;
+            }
+            if(this.getID()==4||this.getID()==6)
+            {
 
-        if(this.getName()=="first" && !firstFlag)
-            return true;
-        if(this.getName()=="sec" && !secondFlag)
-            return true;
-        if(this.getName()=="inter" && !interFlag)
-            return true;
-       // Log.i("callOn","Repeat "+"name "+this.getName()+" first "+firstFlag+ " second "+secondFlag+" inter "+interFlag);
+                float diff = mElapsedTime-newElaps;
+                Log.i("elapsedTimePrint","id "+this.getID()+" diff "+diff);
+            }
 
-        if((this.getName()=="first"&&this.getClass().getName().contains("GVRSkeletonAnimation")) &&((mElapsedTime-newElaps) >= firstEnoughElapsed)){
-            Log.i("callOn","Repeat "+"name "+this.getName()+" first "+(mElapsedTime)+" "+newElaps);
-            secondFlag = true;
-            interFlag = true;
-        }
+            if(((this.getID())!=((sizeofAnim)-2))&&(this.getClass().getName().contains("GVRSkeletonAnimation")) &&((mElapsedTime-newElaps) >= ((this.getDuration())-(0.7))))
+            {
+                flagArr[this.getID()+2] = true;
+                flagArr[this.getID()+3] = true;
+                flagArr[this.getID()+4] = true;
+                flagArr[this.getID()+5] = true;
+
+            }
+
         final int previousCycleCount = (int) (mElapsedTime / mDuration);
         mElapsedTime += (frameTime*animationSpeed);
 
@@ -504,7 +545,7 @@ public abstract class GVRAnimation {
             } else if (mRepeatCount > 0) {
                 stillRunning = --mRepeatCount > 0;
             } else {
-            if(this.getName()=="first"&&this.getClass().getName().contains("GVRSkeletonAnimation"))
+            if((this.getID())!=((sizeofAnim)-2)&&(this.getClass().getName().contains("GVRSkeletonAnimation")||this.getClass().getName().contains("GVRPoseInterpolator")))
               {
               newElaps = mElapsedTime;
                }

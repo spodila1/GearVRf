@@ -320,7 +320,7 @@ public class GVRPoseInterpolator extends GVRAnimation
     public void getSecondPose(float timer)
     {
         //float blendFac = 0.5f;
-        Log.i("printfirstpose","skelanimI "+this.getName()+" "+timer);
+       // Log.i("printfirstpose","skelanimI "+this.getName()+" "+timer);
         GVRPose firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration+timer,skelAnimOne.getSkeleton().getPose());
         GVRPose secondPose = skelAnimTwo.computePose(0+timer,skelAnimTwo.getSkeleton().getPose());
 
