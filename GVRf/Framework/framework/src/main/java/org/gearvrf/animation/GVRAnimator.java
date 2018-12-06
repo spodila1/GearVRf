@@ -276,7 +276,6 @@ public class GVRAnimator extends GVRBehavior
      * @param repeatCount number of times to repeat the animation
      *                    -1 indicates repeat endlessly
      *                    0 indicates animation will stop after current cycle
-
      * @see GVRAnimator#setRepeatMode(int)
      */
     public void setRepeatCount(int repeatCount)
@@ -305,16 +304,16 @@ public class GVRAnimator extends GVRBehavior
             if(st==0||st==1)
             {
                 anim.setName("firss");
-               // anim.setStartTime(mAnimations.get(0).getDuration());
+                // anim.setStartTime(mAnimations.get(0).getDuration());
                 Log.i("animDura","ufyfuu"+mAnimations.get(0).getDuration());
             }
-           if(st==2||st==3)
-           {
-               anim.setName("seccc");
-               anim.setStartTime(mAnimations.get(0).getDuration());
-               Log.i("animDura","ufyfuu"+mAnimations.get(2).getDuration());
-           }
-           // Log.i("animDura","ufyfuu"+anim.getDuration());
+            if(st==2||st==3)
+            {
+                anim.setName("seccc");
+                anim.setStartTime(mAnimations.get(0).getDuration());
+                Log.i("animDura","ufyfuu"+mAnimations.get(2).getDuration());
+            }
+            // Log.i("animDura","ufyfuu"+anim.getDuration());
             anim.start(getGVRContext().getAnimationEngine());
             st++;
         }
@@ -329,12 +328,11 @@ public class GVRAnimator extends GVRBehavior
 
         mIsRunning = true;
         int tempAnimSze = mAnimations.size();
-
         for(int i=0;i<(tempAnimSze)-2;i=i+2)
         {
 
             GVRSkeletonAnimation skelOne = (GVRSkeletonAnimation)mAnimations.get(i);
-
+            Log.i("warningcoming","test "+mAnimations.get(i+2).getClass().getName()+i+" "+((tempAnimSze)-2));
             GVRSkeletonAnimation skelTwo = (GVRSkeletonAnimation)mAnimations.get(i+2);
 
             GVRPoseInterpolator blendAnim = new GVRPoseInterpolator(animModel, blendFactor, skelOne, skelTwo, skelOne.getSkeleton());
@@ -350,95 +348,66 @@ public class GVRAnimator extends GVRBehavior
         }
 
         int animSize = mAnimations.size();
-
         int skelAnimSize = animSize-(numberofInterp*2);
-        int incr = 0;
-        for(int j=0;j<(animSize);j=j+4)
+        float startTime =0;
+        int stt=0;
+        for(int j=0;j<skelAnimSize;j=j+2)
         {
 
             if(j==0)
             {
-
-                mAnimations.get(j).setID(j);
-
-                mAnimations.get(j+1).setID(j+1);
-
-                GVRSkeletonAnimation skelset = (GVRSkeletonAnimation)mAnimations.get(0);
+                mAnimations.get(j).setName("first");
+                mAnimations.get(j+1).setName("first");
+                GVRSkeletonAnimation skelset = (GVRSkeletonAnimation)mAnimations.get(i);
                 skelset.setblendFactor(blendFactor);
-
-                skelset.setSkelReturn("first");
-
-
+                // mAnimations.get(j+1).setName("firstPoseMa");
+                // Log.i("animDura","print "+mAnimations.get(j).getDuration());
+                mAnimations.get(j).start(getGVRContext().getAnimationEngine());
+                mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
 
             }
             else
             {
 
-
-
-                mAnimations.get(incr).setID(j);
-                mAnimations.get(incr+1).setID(j+1);
-
-                GVRSkeletonAnimation skelsetT = (GVRSkeletonAnimation)mAnimations.get(2);
+                stt++;
+                mAnimations.get(j).setName("sec");
+                mAnimations.get(j+1).setName("sec");
+                GVRSkeletonAnimation skelsetT = (GVRSkeletonAnimation)mAnimations.get(j);
                 skelsetT.setblendFactor(blendFactor);
-
-                if(j!=(animSize-2))
-                {
-                    skelsetT.setSkelReturn("middle");
-                }
-                else
-                {
-
-                    skelsetT.setSkelReturn("last");
-                }
-
-
+                startTime = mAnimations.get(j-2).getDuration()+startTime;
+                Log.i("animationcomplete","time "+mAnimations.get(j).getDuration()+" previous "+ mAnimations.get(j-2).getDuration());
+                float test = startTime-(blendFactor*stt);
+                Log.i("animDura","print "+mAnimations.get(j).getDuration()+this.getName()+" startTime "+test);
+                mAnimations.get(j).setStartTime(startTime-(blendFactor*stt));
+                mAnimations.get(j+1).setStartTime(startTime-(blendFactor*stt));
+                mAnimations.get(j).start(getGVRContext().getAnimationEngine());
+                mAnimations.get(j+1).start(getGVRContext().getAnimationEngine());
 
             }
-            incr = incr+2;
         }
-        int mAnim = animSize-(2*numberofInterp);
-        for(int k=0;k<(numberofInterp*4); k=k+4)
+        float startTimeInter = 0;
+        int x=0;
+        for(int k=0;k<(numberofInterp*2); k=k+2)
         {
+            x++;
+            mAnimations.get(skelAnimSize+k).setName("inter");
+            mAnimations.get(skelAnimSize+k+1).setName("inter");
+            mAnimations.get(skelAnimSize+k).setRepeatMode(GVRRepeatMode.REPEATED);
+            mAnimations.get(skelAnimSize+k+1).setRepeatMode(GVRRepeatMode.REPEATED);
+            mAnimations.get(skelAnimSize+k).setRepeatCount(-1);
+            mAnimations.get(skelAnimSize+k+1).setRepeatCount(-1);
+            //mAnimations.get(skelAnimSize+k+1).setName("interPoseMa"+k+1);
+            startTimeInter  = mAnimations.get(k).getDuration()+startTimeInter;
+            float txxt = startTimeInter-(blendFactor*x);
+            Log.i("starttimeInterp","print "+txxt);
+            mAnimations.get(skelAnimSize+k).setStartTime(startTimeInter-(blendFactor*x));
+            mAnimations.get(skelAnimSize+k).start(getGVRContext().getAnimationEngine());
+            mAnimations.get((skelAnimSize)+1+k).setStartTime(startTimeInter-(blendFactor*x));
+            mAnimations.get((skelAnimSize)+1+k).start(getGVRContext().getAnimationEngine());
 
-            mAnimations.get(mAnim).setID(k+2);
-            mAnimations.get(mAnim+1).setID(k+3);
-            //Log.i("getanimationsID","v "+mAnim+" id "+mAnimations.get(mAnim).getID());
-            mAnimations.get(mAnim).setRepeatMode(GVRRepeatMode.REPEATED);
-            mAnimations.get(mAnim+1).setRepeatMode(GVRRepeatMode.REPEATED);
-
-            mAnimations.get(mAnim).setRepeatCount(-1);
-            mAnimations.get(mAnim+1).setRepeatCount(-1);
-            mAnim = mAnim+2;
-
-
-
+            // startTimeInter=startTimeInter+blendFactor;
         }
-
-        mAnimations.get(0).setSize(mAnimations.size());
-        mAnimations.get(0).setFlag(mAnimations.size());
-
-        for(int k=0;k<mAnimations.size(); k++) {
-           // Log.i("printnameandID","print "+ mAnimations.get(k).getName()+" id "+ mAnimations.get(k).getID()+" name "+mAnimations.get(k).getClass().getName());
-            mAnimations.get(k).start(getGVRContext().getAnimationEngine());
-        }
-
-
-
-        //set starttimes
-        for(int i=0;i<mAnimations.size()-(2*numberofInterp);i=i+2)
-        {
-            if(i<(mAnimations.size()-(2*numberofInterp)-2))
-            {
-                //Log.i("printDUraaa"," p "+mAnimations.get(i).getDuration());
-                float du = mAnimations.get(i).getDuration()-blendFactor;
-                mAnimations.get(i).setDur(du);
-            }
-
-        }
-
     }
-
 
     public void sendAvatar(GVRSceneObject model, GVRAvatar avatar, String bonemap)
     {
@@ -471,7 +440,7 @@ public class GVRAnimator extends GVRBehavior
             {
                 anim.setOnFinish(null);
             }
-           // Log.i("callingish","fininshesss");
+            // Log.i("callingish","fininshesss");
             anim.start(getGVRContext().getAnimationEngine());
         }
     }
