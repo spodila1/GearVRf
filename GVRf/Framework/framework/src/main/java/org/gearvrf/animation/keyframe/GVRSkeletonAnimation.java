@@ -235,7 +235,11 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
             target.attachComponent(mSkeleton);
         }
     }
-
+    private String setsKelRet = "";
+    public void setSkelReturn(String setOrder)
+    {
+        setsKelRet = setOrder;
+    }
     @Override
     protected void animate(GVRHybridObject target, float ratio)
     {
@@ -249,17 +253,30 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     public void animate(float timeInSec)
     {
 
-        float time = (this.getDuration()-blendFactor);
-
-        if((timeInSec>time)&&this.getName()=="first")
+        switch(this.setsKelRet)
         {
+            case "first":
+                if((timeInSec>(this.getDuration()-blendFactor)))
+                {
+                    return;
+                }
+                break;
+            case "middle":
+                if((0<timeInSec)&&(timeInSec<blendFactor)&&(timeInSec>(this.getDuration()-blendFactor)))
+                {
+                    return;
+                }
+                break;
+            case "last":
+                if((0<timeInSec)&&(timeInSec<blendFactor))
+                {
+                    return;
+                }
+                break;
 
-            return;
         }
-        else if ((0<timeInSec)&&(timeInSec<blendFactor)&&this.getName()=="sec")
-        {
-            return;
-        }
+
+
         GVRSkeleton skel = getSkeleton();
         GVRPose pose = skel.getPose();
 
