@@ -357,7 +357,6 @@ public class GVRAnimator extends GVRBehavior
 
             if(j==0)
             {
-
                 mAnimations.get(j).setID(j);
 
                 mAnimations.get(j+1).setID(j+1);
@@ -367,13 +366,9 @@ public class GVRAnimator extends GVRBehavior
 
                 skelset.setSkelReturn("first");
 
-
-
             }
             else
             {
-
-
 
                 mAnimations.get(incr).setID(j);
                 mAnimations.get(incr+1).setID(j+1);
@@ -387,11 +382,8 @@ public class GVRAnimator extends GVRBehavior
                 }
                 else
                 {
-
                     skelsetT.setSkelReturn("last");
                 }
-
-
 
             }
             incr = incr+2;
@@ -419,22 +411,11 @@ public class GVRAnimator extends GVRBehavior
 
         for(int k=0;k<mAnimations.size(); k++) {
             // Log.i("printnameandID","print "+ mAnimations.get(k).getName()+" id "+ mAnimations.get(k).getID()+" name "+mAnimations.get(k).getClass().getName());
+            mAnimations.get(k).setDur(blendFactor);
             mAnimations.get(k).start(getGVRContext().getAnimationEngine());
         }
 
 
-
-        //set starttimes
-        for(int i=0;i<mAnimations.size()-(2*numberofInterp);i=i+2)
-        {
-            if(i<(mAnimations.size()-(2*numberofInterp)-2))
-            {
-                //Log.i("printDUraaa"," p "+mAnimations.get(i).getDuration());
-                float du = mAnimations.get(i).getDuration()-blendFactor;
-                mAnimations.get(i).setDur(du);
-            }
-
-        }
 
     }
 

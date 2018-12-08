@@ -56,6 +56,7 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     static int order = -1;
     static boolean flag = false;
     private float blendFactor=0;
+    boolean setReturn = false;
 
     /**
      * List of animation channels for each of the
@@ -240,9 +241,19 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
     {
         setsKelRet = setOrder;
     }
+    public String getSkelReturn()
+    {
+        return setsKelRet;
+    }
+    public void setReturn(boolean setR)
+    {
+        setReturn = setR;
+    }
     @Override
     protected void animate(GVRHybridObject target, float ratio)
     {
+       // Log.i("printLasttime","skel "+(ratio));
+
         animate(getDuration() * ratio);
     }
 
@@ -256,7 +267,8 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
         switch(this.setsKelRet)
         {
             case "first":
-                if((timeInSec>(this.getDuration()-blendFactor)))
+               // Log.i("printLasttime","skel "+(timeInSec));
+                if(setReturn)//(timeInSec>(this.getDuration()-blendFactor)))
                 {
                     return;
                 }
@@ -268,8 +280,9 @@ public class GVRSkeletonAnimation extends GVRAnimation implements PrettyPrint {
                 }
                 break;
             case "last":
-                if((0<timeInSec)&&(timeInSec<blendFactor))
+                if(setReturn)
                 {
+
                     return;
                 }
                 break;

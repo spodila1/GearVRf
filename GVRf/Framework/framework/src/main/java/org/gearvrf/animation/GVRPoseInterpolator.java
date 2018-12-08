@@ -81,6 +81,7 @@ public class GVRPoseInterpolator extends GVRAnimation
     private float[][] rotBlend;
     private float[][] sclBlend;
     private int check =0;
+    static float frameTime =0;
 
     public GVRPoseInterpolator(GVRSceneObject target, float duration, GVRPose poseOne, GVRPose poseTwo, GVRSkeleton skeleton)
     {
@@ -321,7 +322,9 @@ public class GVRPoseInterpolator extends GVRAnimation
     {
         //float blendFac = 0.5f;
        // Log.i("printfirstpose","skelanimI "+this.getName()+" "+timer);
-        GVRPose firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration+timer,skelAnimOne.getSkeleton().getPose());
+       Log.i("printtimer","inter "+frameTime);
+
+        GVRPose firstPose = skelAnimOne.computePose(skelAnimOne.getDuration()-pDuration+timer+frameTime,skelAnimOne.getSkeleton().getPose());//+0.03f
         GVRPose secondPose = skelAnimTwo.computePose(0+timer,skelAnimTwo.getSkeleton().getPose());
 
         float mul = 1/pDuration;
@@ -367,7 +370,7 @@ public class GVRPoseInterpolator extends GVRAnimation
     }
 
     public void animate(float timer) {
-
+//timer = timer+0.03f;
         initialPose = dskeleton.getPose();
 
         Matrix4f temp = new Matrix4f();
